@@ -21,6 +21,10 @@ public class ColumnInfo {
     @JsonIgnore
     private DasColumn obj;
     /**
+     * 原始列名称
+     */
+    private String originalName;
+    /**
      * 名称
      */
     private String name;

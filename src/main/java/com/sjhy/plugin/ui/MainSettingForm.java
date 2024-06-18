@@ -3,7 +3,7 @@ package com.sjhy.plugin.ui;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.impl.ClipboardExportImportSettingsServiceImpl;
 import com.sjhy.plugin.service.impl.LocalFileExportImportSettingsServiceImpl;
@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * @author makejava
  * @version 1.0.0
- * @date 2021/08/07 09:22
+ * @since 2021/08/07 09:22
  */
 public class MainSettingForm implements Configurable, Configurable.Composite, BaseSettings {
     private JLabel versionLabel;
@@ -39,6 +39,8 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
     private JLabel userSecureLabel;
     private JLabel userSecureTitle;
     private JLabel authorTitle;
+    private JTextField fileVersionEditor;
+    private JLabel fileVersionTitle;
 
     /**
      * 子配置
@@ -120,6 +122,7 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
         // 初始图标
         this.authorTitle.setIcon(AllIcons.Actions.IntentionBulb);
         this.userSecureTitle.setIcon(AllIcons.Actions.IntentionBulb);
+        this.fileVersionTitle.setIcon(AllIcons.Actions.IntentionBulb);
         // 加载储存数据
         this.loadSettingsStore();
         // 初始化事件
@@ -133,10 +136,10 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
         if (!Objects.equals(this.authorEditor.getText(), getSettingsStorage().getAuthor())) {
             return true;
         }
-        if (!Objects.equals(this.userSecureEditor.getText(), getSettingsStorage().getUserSecure())) {
+        if (!Objects.equals(this.fileVersionEditor.getText(), getSettingsStorage().getFileVersion())) {
             return true;
         }
-        return false;
+        return !Objects.equals(this.userSecureEditor.getText(), getSettingsStorage().getUserSecure());
     }
 
     @Override
@@ -148,6 +151,8 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
         getSettingsStorage().setAuthor(author);
         String userSecure = this.userSecureEditor.getText();
         getSettingsStorage().setUserSecure(userSecure);
+        String fileVersion = this.fileVersionEditor.getText();
+        getSettingsStorage().setFileVersion(fileVersion);
     }
 
     /**
@@ -157,8 +162,9 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
      */
     @Override
     public void loadSettingsStore(SettingsStorageDTO settingsStorage) {
-        this.versionLabel.setText(GlobalDict.VERSION);
+        this.versionLabel.setText(Const.VERSION);
         this.authorEditor.setText(settingsStorage.getAuthor());
+        this.fileVersionEditor.setText(settingsStorage.getFileVersion());
         this.userSecureEditor.setText(settingsStorage.getUserSecure());
         if (StringUtils.isEmpty(settingsStorage.getUserSecure())) {
             this.pullBtn.setEnabled(false);

@@ -26,8 +26,8 @@ public class VelocityUtils {
         // 设置初始化配置
         INIT_PROP = new Properties();
         // 修复部分用户的velocity日志记录无权访问velocity.log文件问题
-        INIT_PROP.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.Log4JLogChute");
-        INIT_PROP.setProperty("runtime.log.logsystem.log4j.logger", "velocity");
+        //INIT_PROP.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.Log4JLogChute");
+        INIT_PROP.setProperty("runtime.log.logsystem.log4j.logger" , "velocity");
     }
 
     /**
@@ -55,14 +55,14 @@ public class VelocityUtils {
         StringWriter stringWriter = new StringWriter();
         try {
             // 生成代码
-            velocityEngine.evaluate(velocityContext, stringWriter, "Velocity Code Generate", template);
+            velocityEngine.evaluate(velocityContext, stringWriter, "Velocity Code Generate" , template);
         } catch (Exception e) {
             // 将异常全部捕获，直接返回，用于写入模板
             StringBuilder builder = new StringBuilder("在生成代码时，模板发生了如下语法错误：\n");
             StringWriter writer = new StringWriter();
             e.printStackTrace(new PrintWriter(writer));
-            builder.append(writer.toString());
-            return builder.toString().replace("\r", "");
+            builder.append(writer);
+            return builder.toString().replace("\r" , "");
         }
         String code = stringWriter.toString();
         // 清除前面空格

@@ -3,7 +3,7 @@ package com.sjhy.plugin.ui;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.ui.ComboBoxTableRenderer;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.ColumnConfig;
 import com.sjhy.plugin.entity.ColumnConfigGroup;
@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 /**
  * @author makejava
  * @version 1.0.0
- * @date 2021/08/10 13:27
+ * @since 2021/08/10 13:27
  */
 public class ColumnConfigSettingForm implements Configurable, BaseSettings {
     private final JPanel mainPanel;
@@ -129,11 +129,11 @@ public class ColumnConfigSettingForm implements Configurable, BaseSettings {
     @Override
     public void loadSettingsStore(SettingsStorageDTO settingsStorage) {
         // 复制配置，防止篡改
-        this.columnConfigGroupMap = CloneUtils.cloneByJson(settingsStorage.getColumnConfigGroupMap(), new TypeReference<Map<String, ColumnConfigGroup>>() {
+        this.columnConfigGroupMap = CloneUtils.cloneByJson(settingsStorage.getColumnConfigGroupMap(), new TypeReference<>() {
         });
         this.currColumnConfigGroup = this.columnConfigGroupMap.get(settingsStorage.getCurrColumnConfigGroupName());
         if (this.currColumnConfigGroup == null) {
-            this.currColumnConfigGroup = this.columnConfigGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
+            this.currColumnConfigGroup = this.columnConfigGroupMap.get(Const.DEFAULT_GROUP_NAME);
         }
         this.refreshUiVal();
     }

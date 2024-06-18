@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.ide.fileTemplates.impl.UrlUtil;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.util.ExceptionUtil;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
@@ -133,7 +133,7 @@ public class TemplateSettingForm implements Configurable, BaseSettings {
         });
         this.currTemplateGroup = this.templateGroupMap.get(settingsStorage.getCurrTemplateGroupName());
         if (this.currTemplateGroup == null) {
-            this.currTemplateGroup = this.templateGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
+            this.currTemplateGroup = this.templateGroupMap.get(Const.DEFAULT_GROUP_NAME);
         }
         // 解决reset后编辑框未清空BUG
         if (this.editorComponent != null) {

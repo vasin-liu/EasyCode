@@ -1,0 +1,34 @@
+/*
+ * Copyright © ${year} PCI Technology Group Co.,Ltd. All Rights Reserved.
+ * Site: http://www.pcitech.com/
+ * Address：PCI Intelligent Building, No.2 Xincen Fourth Road, Tianhe District, Guangzhou，China（Zip code：510653）
+ */
+##导入宏定义
+$!{define.vm}
+
+##设置表后缀（宏定义）
+#setTableSuffix("Mapper")
+
+##保存文件（宏定义）
+#save("/mapper", "Mapper.java")
+
+##包路径（宏定义）
+#setPackageSuffix("mapper")
+
+##定义包路径
+#set($package = $!{tableInfo.savePackageName})
+
+##定义类名
+#set($className = $!{tableInfo.name})
+
+$!autoImport
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+import ${package}.model.po.${className}PO;
+
+##表注释（宏定义）
+#tableComment("映射类")
+@Mapper
+public interface ${className}Mapper extends BaseMapper<${className}PO> {
+
+}

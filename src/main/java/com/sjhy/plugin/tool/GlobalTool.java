@@ -9,7 +9,6 @@ import com.sjhy.plugin.entity.DebugMethod;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -230,7 +229,7 @@ public class GlobalTool extends NameUtils {
      * @param json json字符串
      * @return map对象
      */
-    public Map<?,?> parseJson(String json) {
+    public Map<?, ?> parseJson(String json) {
         if (StringUtils.isEmpty(json)) {
             return null;
         }
@@ -254,7 +253,7 @@ public class GlobalTool extends NameUtils {
     /**
      * 将对象转json字符串
      *
-     * @param obj 对象
+     * @param obj    对象
      * @param format 是否格式化json
      * @return json字符串
      */
@@ -280,6 +279,7 @@ public class GlobalTool extends NameUtils {
 
     /**
      * 字符串转unicode编码（默认只转换CHINESE_REGEX匹配到的字符）
+     *
      * @param str 字符串
      * @return 转码后的字符串
      */
@@ -289,7 +289,8 @@ public class GlobalTool extends NameUtils {
 
     /**
      * 字符串转unicode编码
-     * @param str 字符串
+     *
+     * @param str      字符串
      * @param transAll true转换所有字符，false只转换CHINESE_REGEX匹配到的字符
      * @return 转码后的字符串
      */
@@ -362,5 +363,13 @@ public class GlobalTool extends NameUtils {
         } catch (ClassNotFoundException e) {
             return null;
         }
+    }
+
+    public String escapeDoubleQuotes(String str) {
+        return org.apache.commons.lang3.StringUtils.replace(str,"\"","\\\"");
+    }
+
+    public String getFirstFragment(String str) {
+        return StringUtils.getFirstFragment(str);
     }
 }

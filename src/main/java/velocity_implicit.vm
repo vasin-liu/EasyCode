@@ -1,5 +1,8 @@
 #* @implicitly included *#
 #* @vtlvariable name="author" type="java.lang.String" *#
+#* @vtlvariable name="year" type="java.lang.Integer" *#
+#* @vtlvariable name="date" type="java.lang.String" *#
+#* @vtlvariable name="version" type="java.lang.String" *#
 #* @vtlvariable name="encode" type="java.lang.String" *#
 #* @vtlvariable name="modulePath" type="java.lang.String" *#
 #* @vtlvariable name="importList" type="java.util.List<java.lang.String>" *#

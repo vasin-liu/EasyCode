@@ -4,6 +4,7 @@ import com.intellij.database.psi.DbTable;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.psi.PsiClass;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.dto.TableInfoSettingsDTO;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.service.TableInfoSettingsService;
@@ -15,9 +16,9 @@ import java.util.Objects;
 /**
  * @author makejava
  * @version 1.0.0
- * @date 2021/08/14 15:20
+ * @since 2021/08/14 15:20
  */
-@State(name = "EasyCodeTableSetting", storages = @Storage("easyCodeTableSetting.xml"))
+@State(name = "EasyCodeTableSetting", storages = @Storage(Const.PLUGIN_TABLE_SETTING_FILE_NAME))
 public class TableInfoSettingsServiceImpl implements TableInfoSettingsService {
 
     private TableInfoSettingsDTO tableInfoSettings = new TableInfoSettingsDTO();

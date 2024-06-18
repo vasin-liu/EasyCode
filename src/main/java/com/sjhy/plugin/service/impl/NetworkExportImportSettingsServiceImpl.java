@@ -6,7 +6,7 @@ import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.NonEmptyInputValidator;
 import com.intellij.openapi.util.TextRange;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.ExportImportSettingsService;
 import com.sjhy.plugin.tool.HttpUtils;
@@ -50,10 +50,10 @@ public class NetworkExportImportSettingsServiceImpl implements ExportImportSetti
             // 显示token
             try {
                 Method method = Messages.class.getMethod("showInputDialog", Project.class, String.class, String.class, Icon.class, String.class, InputValidator.class, TextRange.class, String.class);
-                method.invoke(null, ProjectUtils.getCurrProject(), result, GlobalDict.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator(), null, "Easy Code官网地址：<a href='http://www.ieasycode.com:9527'>www.ieasycode.com:9527</a>");
+                method.invoke(null, ProjectUtils.getCurrProject(), result, Const.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator(), null, "Easy Code官网地址：<a href='http://www.ieasycode.com:9527'>www.ieasycode.com:9527</a>");
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 // 兼容旧版本
-                Messages.showInputDialog(ProjectUtils.getCurrProject(), result, GlobalDict.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator(), null);
+                Messages.showInputDialog(ProjectUtils.getCurrProject(), result, Const.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator(), null);
             }
         }
     }
@@ -65,7 +65,7 @@ public class NetworkExportImportSettingsServiceImpl implements ExportImportSetti
      */
     @Override
     public SettingsStorageDTO importConfig() {
-        String token = Messages.showInputDialog("Token:", GlobalDict.TITLE_INFO, AllIcons.General.Tip, "", new InputValidator() {
+        String token = Messages.showInputDialog("Token:", Const.TITLE_INFO, AllIcons.General.Tip, "", new InputValidator() {
             @Override
             public boolean checkInput(String inputString) {
                 return !StringUtils.isEmpty(inputString);

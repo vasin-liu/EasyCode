@@ -3,9 +3,9 @@ package com.sjhy.plugin.service;
 import com.intellij.database.psi.DbTable;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.dto.TableInfoSettingsDTO;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.service.impl.TableInfoSettingsServiceImpl;
@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * @author makejava
  * @version 1.0.0
- * @date 2021/08/14 15:16
+ * @since 2021/08/14 15:16
  */
 public interface TableInfoSettingsService extends PersistentStateComponent<TableInfoSettingsDTO> {
     /**
@@ -26,12 +26,12 @@ public interface TableInfoSettingsService extends PersistentStateComponent<Table
      */
     static TableInfoSettingsService getInstance() {
         try {
-            return ServiceManager.getService(ProjectUtils.getCurrProject(), TableInfoSettingsServiceImpl.class);
+            return ProjectUtils.getCurrProject().getService(TableInfoSettingsServiceImpl.class);
         } catch (AssertionError e) {
             // 出现配置文件被错误修改，或不兼容时直接删除配置文件。
             VirtualFile workspaceFile = ProjectUtils.getCurrProject().getWorkspaceFile();
             if (workspaceFile != null) {
-                VirtualFile configFile = workspaceFile.getParent().findChild("easyCodeTableSetting.xml");
+                VirtualFile configFile = workspaceFile.getParent().findChild(Const.PLUGIN_TABLE_SETTING_FILE_NAME);
                 if (configFile != null && configFile.exists()) {
                     WriteCommandAction.runWriteCommandAction(ProjectUtils.getCurrProject(), () -> {
                         try {
@@ -43,7 +43,7 @@ public interface TableInfoSettingsService extends PersistentStateComponent<Table
                 }
             }
             // 重新获取配置
-            return ServiceManager.getService(ProjectUtils.getCurrProject(), TableInfoSettingsServiceImpl.class);
+            return ProjectUtils.getCurrProject().getService(TableInfoSettingsServiceImpl.class);
         }
     }
 

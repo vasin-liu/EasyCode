@@ -1,0 +1,280 @@
+/*
+ * Copyright © ${year} PCI Technology Group Co.,Ltd. All Rights Reserved.
+ * Site: http://www.pcitech.com/
+ * Address：PCI Intelligent Building, No.2 Xincen Fourth Road, Tianhe District, Guangzhou，China（Zip code：510653）
+ */
+##导入宏定义
+$!{define.vm}
+
+##设置表后缀（宏定义）
+#setTableSuffix("Controller")
+
+##保存文件（宏定义）
+#save("/controller", "Controller.java")
+
+##包路径（宏定义）
+#setPackageSuffix("controller")
+
+##定义包路径
+#set($package = $!{tableInfo.savePackageName})
+
+##定义类名
+#set($className = $!{tableInfo.name})
+
+##定义注释内容
+#set($comments = $!{tableInfo.comment})
+
+##定义服务名
+#set($serviceName = $!tool.append($!tool.firstLowerCase($!tableInfo.name), "Service"))
+
+##定义实体对象名
+#set($entityName = $!tool.firstLowerCase($!tableInfo.name))
+
+##初始化列状态
+#initColumnState()
+
+$!autoImport
+import com.suntek.common.core.base.Result;
+import com.suntek.common.core.base.ReqBody;
+import com.suntek.common.core.constant.PublicConstants;
+import com.suntek.common.core.util.CopyUtil;
+import com.suntek.common.dao.base.PageDTO;
+#if($callback.exportExcelWithTemplate)
+import com.alibaba.excel.support.ExcelTypeEnum;
+import com.suntek.common.web.constant.TemplateConstants;
+import com.suntek.common.web.excel.enhance.annotation.ExcelResponse;
+import com.suntek.common.web.excel.enhance.annotation.FillSheetParam;
+import com.suntek.common.web.excel.enhance.metadata.FillCompositeWrapper;
+#else
+import com.suntek.common.export.util.DownloadUtil;
+import javax.servlet.http.HttpServletResponse;
+#end
+import ${package}.model.po.${className}PO;
+import ${package}.model.dto.${className}DTO;
+import ${package}.model.vo.${className}VO;
+import ${package}.model.vo.${className}PageVO;
+import ${package}.service.${className}Service;
+import org.springframework.web.bind.annotation.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import lombok.extern.slf4j.Slf4j;
+import com.suntek.common.core.annotation.TranslateDict;
+
+import javax.annotation.Resource;
+import java.io.File;
+import java.util.List;
+
+##表注释（宏定义）
+#tableComment("控制层")
+@Slf4j
+@RestController
+@RequestMapping("${tool.getUri($tableInfo.preName,$tableInfo.obj.name)}")
+@Api(value = "${className}Controller", tags = {"${comments}"})
+public class ${className}Controller {
+
+    /**
+     * 服务对象
+     */
+    @Resource
+    private $!{tableInfo.name}Service $!{serviceName};
+
+    /**
+     * 分页查询${comments}
+     *
+     * @param param 分页对象
+     * @return Result<PageDTO <${className}DTO>>
+     */
+    @PostMapping("/page")
+    @ApiOperation(value = "分页查询${comments}", notes = "分页查询${comments}")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "param", value = "查询条件", required = true)
+    })
+    public Result<PageDTO<${className}DTO>> listPage(@RequestBody ReqBody<${className}PageVO> param) {
+        return Result.success($!{serviceName}.listPage(param.getData()));
+    }
+
+#if(!$tableInfo.pkColumn.isEmpty())
+    #set($pk = $!{tableInfo.pkColumn.get(0)})
+    /**
+     * 通过id查询${comments}
+     *
+     * @param ${pk.name} id
+     * @return Result<${className}DTO>
+     */
+    @GetMapping("/{${pk.name}}")
+    @ApiOperation(value = "通过id查询${comments}", notes = "通过id查询${comments}")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "${pk.name}", value = "主键id", required = true)
+    })
+    @TranslateDict
+    public Result<${className}DTO> getById(@PathVariable("${pk.name}") ${pk.shortType} ${pk.name}) {
+        return Result.success($!{serviceName}.detail(${pk.name}));
+    }
+#end
+
+    /**
+     * 新增${comments}
+     *
+     * @param param ${comments}
+     * @return Result<Boolean>
+     */
+    @PostMapping("/save")
+    @ApiOperation(value = "新增${comments}", notes = "新增${comments}")
+    public Result<Boolean> save(@RequestBody ReqBody<${className}VO> param) {
+        return Result.success($!{serviceName}.add(param.getData()));
+    }
+
+    /**
+     * 批量新增${comments}
+     *
+     * @param param ${comments}
+     * @return Result<Boolean>
+     */
+    @PostMapping("/batch/save")
+    @ApiOperation(value = "批量新增${comments}", notes = "批量新增${comments}")
+    public Result<Boolean> saveBatch(@RequestBody ReqBody<List<${className}VO>> param) {
+        return Result.success($!{serviceName}.addBatch(param.getData()));
+    }
+
+    /**
+     * 修改${comments}
+     *
+     * @param param ${comments}
+     * @return Result<Boolean>
+     */
+    @PostMapping("/update")
+    @ApiOperation(value = "修改${comments}", notes = "修改${comments}")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "param", value = "更新内容，其中id必填", required = true)
+    })
+    public Result<Boolean> update(@RequestBody ReqBody<${className}VO> param) {
+        return Result.success($!{serviceName}.updateById(CopyUtil.toBean(param.getData(), ${className}PO.class)));
+    }
+
+    /**
+     * 批量修改${comments}
+     *
+     * @param param ${comments}
+     * @return Result<Boolean>
+     */
+    @PostMapping("/batch/update")
+    @ApiOperation(value = "批量修改${comments}", notes = "批量修改${comments}")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "param", value = "批量更新内容，其中id必填", required = true)
+    })
+    public Result<Boolean> updateBatch(@RequestBody ReqBody<List<${className}VO>> param) {
+        return Result.success($!{serviceName}.updateBatchById(CopyUtil.copyList(param.getData(), ${className}PO.class)));
+    }
+
+#if(!$tableInfo.pkColumn.isEmpty())
+    #set($pk = $!{tableInfo.pkColumn.get(0)})
+    #if($hasStatusColumn)
+    /**
+     * 通过id删除${comments}
+     * ps: 此接口为逻辑删除
+     *
+     * @param ${pk.name} id
+     * @return Result<Boolean>
+     */
+    @PostMapping("/delete/{${pk.name}}")
+    @ApiOperation(value = "删除${comments}", notes = "删除${comments}（逻辑删除）")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "${pk.name}", value = "主键id", required = true)
+    })
+    public Result<Boolean> delete(@PathVariable ${pk.shortType} ${pk.name}) {
+        return Result.success($!{serviceName}.logicalRemoveById(${pk.name}));
+    }
+
+    /**
+     * 通过id集合批量删除${comments}
+     * ps: 此接口为逻辑删除
+     *
+     * @param params id集合
+     * @return Result<Boolean>
+     */
+    @PostMapping("/batch/delete")
+    @ApiOperation(value = "批量删除${comments}", notes = "批量删除${comments}（逻辑删除）")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "params", value = "主键id集合", required = true)
+    })
+    public Result<Boolean> deleteBatch(@RequestBody ReqBody<List<${pk.shortType}>> params) {
+        return Result.success(${serviceName}.logicalRemoveByIds(params.getData()));
+    }
+    #else
+    /**
+     * 通过id删除${comments}
+     * ps: 此接口为物理删除
+     *
+     * @param ${pk.name} id
+     * @return Result<Boolean>
+     */
+    @PostMapping("/delete/{${pk.name}}")
+    @ApiOperation(value = "删除${comments}", notes = "删除${comments}（物理删除）")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "${pk.name}", value = "主键id", required = true)
+    })
+    public Result<Boolean> delete(@PathVariable ${pk.shortType} ${pk.name}) {
+        return Result.success($!{serviceName}.removeById(${pk.name}));
+    }
+
+    /**
+     * 通过id集合批量删除${comments}
+     * ps: 此接口为物理删除
+     *
+     * @param params id集合
+     * @return Result<Boolean>
+     */
+    @PostMapping("/batch/delete")
+    @ApiOperation(value = "批量删除${comments}", notes = "批量删除${comments}（物理删除）")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "params", value = "主键id集合", required = true)
+    })
+    public Result<Boolean> deleteBatch(@RequestBody ReqBody<List<${pk.shortType}>> params) {
+        return Result.success(${serviceName}.removeBatchByIds(params.getData()));
+    }
+    #end
+#end
+
+#if($callback.exportExcelWithTemplate)
+    /**
+     * 分页查询${comments}后导出excel
+     *
+     * @param param 分页对象
+     * @return FillCompositeWrapper
+     */
+    @PostMapping("/export")
+    @ApiOperation(value = "导出${comments}", notes = "导出${comments}")
+    @ExcelResponse(
+            template = {TemplateConstants.ExcelConstants.FILL_TEMPLATE_DIR, "${comments}导出模板.xlsx"},
+            suffix = ExcelTypeEnum.XLSX,
+            fileName = "${comments}",
+            fillSheets = @FillSheetParam)
+    public FillCompositeWrapper export(@RequestBody ReqBody<${className}PageVO> param) {
+        FillCompositeWrapper fillCompositeWrapper = new FillCompositeWrapper();
+        PageDTO<${className}DTO> pageDTO = $!{serviceName}.listPage(param.getData());
+        fillCompositeWrapper.addFillData("data1", pageDTO.getRecords());
+        return fillCompositeWrapper;
+    }
+#else
+
+    /**
+    * 分页查询${comments}后导出excel
+    *
+    * @param param 分页对象
+    */
+    @PostMapping("/export")
+    @ApiOperation(value = "导出${comments}", notes = "导出${comments}", produces = "application/octet-stream")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "param", value = "查询条件", required = true)
+    })
+    public void export(@RequestBody ReqBody<${className}PageVO> param, HttpServletResponse response) {
+        param.getData().setCurrent(1L);
+        param.getData().setSize(PublicConstants.Excel.DEFAULT_MAX_EXPORT_TOTAL);
+        PageDTO<${className}DTO> pageDTO = $!{serviceName}.listPage(param.getData());
+        File file = ${serviceName}.export(pageDTO);
+        DownloadUtil.downloadFileThenDelete(response, file);
+    }
+#end
+}

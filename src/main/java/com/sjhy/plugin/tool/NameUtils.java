@@ -1,5 +1,6 @@
 package com.sjhy.plugin.tool;
 
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +39,7 @@ public class NameUtils {
      */
     private static final Pattern TO_HUMP_PATTERN = Pattern.compile("[-_]([a-z0-9])");
     private static final Pattern TO_LINE_PATTERN = Pattern.compile("[A-Z]+");
+    private static final String PATH_SYMBOL = "/";
 
     /**
      * 首字母大写方法
@@ -57,6 +59,10 @@ public class NameUtils {
      */
     public String firstLowerCase(String name) {
         return StringUtils.uncapitalize(name);
+    }
+
+    public String toLowerCase(String name) {
+        return org.apache.commons.lang3.StringUtils.lowerCase((name));
     }
 
     /**
@@ -140,6 +146,26 @@ public class NameUtils {
      */
     public String getClassName(String name) {
         return firstUpperCase(getJavaName(name));
+    }
+
+    /**
+     * 下划线中横线命名转URI命名（RequestMapping的path）
+     *
+     * @param prefix 前缀
+     * @param name   名称
+     * @return 结果
+     */
+    public String getUri(String prefix, String name) {
+        if (StringUtils.isEmpty(name)) {
+            return name;
+        }
+        // 强转全小写
+        name = name.toLowerCase();
+        if (!StringUtils.isEmpty(prefix)) {
+            name = name.replace(prefix, "");
+        }
+
+        return PATH_SYMBOL.concat(name.replace("_" , PATH_SYMBOL).replace("-" , PATH_SYMBOL));
     }
 
     /**

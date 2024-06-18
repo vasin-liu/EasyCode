@@ -1,0 +1,66 @@
+/*
+ * Copyright © ${year} PCI Technology Group Co.,Ltd. All Rights Reserved.
+ * Site: http://www.pcitech.com/
+ * Address：PCI Intelligent Building, No.2 Xincen Fourth Road, Tianhe District, Guangzhou，China（Zip code：510653）
+ */
+##导入宏定义
+$!{define.vm}
+
+$!{init.vm}
+
+##设置表后缀（宏定义）
+#setTableSuffix("VO")
+
+##保存文件（宏定义）
+#save("/model/vo", "VO.java")
+
+##包路径（宏定义）
+#setPackageSuffix("model.vo")
+
+##定义包路径
+#set($package = $!{tableInfo.savePackageName})
+
+##定义类名
+#set($className = $!{tableInfo.name})
+
+##初始化列状态
+#initColumnState()
+
+##自动导入包（全局变量）
+$!autoImport
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import com.suntek.common.core.base.BaseVO;
+#if(${hasBigDecimalColumn})
+import java.math.BigDecimal;
+#end
+#if(${hasDateColumn})
+import cn.hutool.core.date.DatePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
+#end
+import java.util.Date;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.NoArgsConstructor;
+
+##表注释（宏定义）
+#tableComment("值对象类")
+@Data
+@NoArgsConstructor
+@ApiModel(description = "${tableInfo.comment}" )
+@EqualsAndHashCode(callSuper = true)
+public class ${className}VO extends BaseVO {
+    private static final long serialVersionUID = 1L;
+
+    #foreach ($column in $tableInfo.fullColumn)
+    /**
+     * $!{column.comment}
+     */
+    #if($!{column.shortType} == "Date")
+    @JsonFormat(pattern = DatePattern.NORM_DATETIME_PATTERN, timezone = "Asia/Shanghai" )
+    #end
+    @ApiModelProperty(value = "$!{tool.escapeDoubleQuotes($!{column.comment})}" )
+    private $!{column.shortType} $!{column.name};
+
+    #end
+}

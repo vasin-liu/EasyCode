@@ -1,0 +1,192 @@
+/*
+ * Copyright © ${year} PCI Technology Group Co.,Ltd. All Rights Reserved.
+ * Site: http://www.pcitech.com/
+ * Address：PCI Intelligent Building, No.2 Xincen Fourth Road, Tianhe District, Guangzhou，China（Zip code：510653）
+ */
+##导入宏定义
+$!{define.vm}
+
+##设置表后缀（宏定义）
+#setTableSuffix("Service")
+
+##保存文件（宏定义）
+#save("/service/impl", "ServiceImpl.java")
+
+##包路径（宏定义）
+#setPackageSuffix("service.impl")
+
+##定义包路径
+#set($package = $!{tableInfo.savePackageName})
+
+##定义类名
+#set($className = $!{tableInfo.name})
+
+##定义注释内容
+#set($comments = $!{tableInfo.comment})
+
+##初始化列状态
+#initColumnState()
+
+##定义实体对象名
+#set($entityName = $!tool.firstLowerCase($!tableInfo.name))
+
+$!autoImport
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+#if(${hasStatusColumn})
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+#end
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.suntek.common.core.constant.PublicConstants;
+import ${package}.model.po.${className}PO;
+import ${package}.model.dto.${className}DTO;
+import ${package}.model.vo.${className}PageVO;
+import ${package}.model.vo.${className}VO;
+import ${package}.mapper.${className}Mapper;
+import ${package}.service.${className}Service;
+import com.suntek.common.core.util.CopyUtil;
+import com.suntek.common.dao.base.PageDTO;
+import com.suntek.common.dao.util.PageUtil;
+#if(!$callback.exportExcelWithTemplate)
+import com.suntek.common.export.service.delegate.NormalExcelExportDelegate;
+#end
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import com.suntek.common.core.annotation.TranslateDict;
+
+import java.util.Collection;
+import java.util.Date;
+#if(!$callback.exportExcelWithTemplate)
+import java.io.File;
+#end
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+##表注释（宏定义）
+#tableComment("服务实现层")
+@Service
+@Slf4j
+public class ${className}ServiceImpl extends ServiceImpl<${className}Mapper, ${className}PO> implements ${className}Service {
+
+    @Override
+    @TranslateDict
+    public PageDTO<${className}DTO> listPage(${className}PageVO vo) {
+        LambdaQueryWrapper<${className}PO> condition = Wrappers.lambdaQuery(CopyUtil.toBean(vo, ${className}PO.class));
+        #if(${hasStatusColumn})
+        condition.eq(${className}PO::getStatus, PublicConstants.STATUS.S0A);
+        #end
+        IPage<${className}PO> pageResult = baseMapper.selectPage(PageUtil.page(vo), condition);
+        return PageDTO.toPage(pageResult, ${className}DTO.class);
+    }
+
+#if(!$tableInfo.pkColumn.isEmpty())
+    #set($pk = $!{tableInfo.pkColumn.get(0)})
+    @Override
+    public ${className}DTO detail($!{pk.shortType} ${pk.name}) {
+        Assert.notNull(${pk.name}, "查询ID不允许为空");
+        ${className}PO po = baseMapper.selectById(${pk.name});
+        if (ObjectUtil.isEmpty(po)) {
+            return null;
+        }
+        return CopyUtil.toBean(po, ${className}DTO.class);
+    }
+#end
+
+    @Override
+    public boolean add(${className}VO vo) {
+        if (null == vo) {
+            return false;
+        }
+        ${className}PO po = CopyUtil.toBean(vo, ${className}PO.class);
+        #if(${hasStatusColumn})
+        //默认数据有效
+        po.setStatus(PublicConstants.STATUS.S0A);
+        #end
+        return super.save(po);
+    }
+
+    @Transactional(
+            rollbackFor = {Exception.class}
+    )
+    @Override
+    public boolean addBatch(Collection<${className}VO> voList) {
+        if (null == voList || voList.isEmpty()) {
+            return false;
+        }
+        List<${className}PO> poList = CopyUtil.copyList(voList, ${className}PO.class);
+        #if(${hasStatusColumn})
+        //默认数据有效
+        poList.forEach(po -> po.setStatus(PublicConstants.STATUS.S0A));
+        #end
+        return super.saveBatch(poList);
+    }
+
+#if(!$callback.exportExcelWithTemplate)
+    @Override
+    public File export(PageDTO<${className}DTO> pageDTO) {
+        List<${className}DTO> records = pageDTO.getRecords();
+        List<Map<String, Object>> listMap = records.stream().map(BeanUtil::beanToMap).collect(Collectors.toList());
+        AtomicInteger count = new AtomicInteger(1);
+        listMap.forEach(map -> {
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                if (entry.getValue() instanceof Date) {
+                    entry.setValue(DateUtil.formatDateTime((Date) entry.getValue()));
+                }
+            }
+            map.put("no", count.getAndIncrement());
+        });
+        Map<String, String> header = ImmutableMap.<String, String>builder()
+                .put("no", "序号")
+            #foreach ($column in $tableInfo.fullColumn)
+                #if($!callback.truncateComment)
+                .put("$!{column.name}", "$!tool.escapeDoubleQuotes($!tool.getFirstFragment($!column.comment))")
+                #else
+                .put("$!{column.name}", "$!tool.escapeDoubleQuotes($!column.comment)")
+                #end
+            #end
+                .build();
+
+        String fileName = "${comments}导出-" + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
+        return NormalExcelExportDelegate.dataSyncExport(listMap, Maps.newLinkedHashMap(header), fileName);
+    }
+#end
+
+#if(!$tableInfo.pkColumn.isEmpty())
+    #set($pk = $!{tableInfo.pkColumn.get(0)})
+    #if($hasStatusColumn)
+    @Override
+    public boolean logicalRemoveById(${pk.shortType} ${pk.name}) {
+            ${className}PO updateOne = new ${className}PO();
+        updateOne.setId(id);
+        //设置为逻辑删除
+        updateOne.setStatus(PublicConstants.STATUS.S0D);
+        baseMapper.updateById(updateOne);
+
+        return true;
+    }
+
+    @Override
+    public boolean logicalRemoveByIds(Collection<${pk.shortType}> idList) {
+            ${className}PO updateOne = new ${className}PO();
+        //设置为逻辑删除
+        updateOne.setStatus(PublicConstants.STATUS.S0D);
+        LambdaUpdateWrapper<${className}PO> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.in(${className}PO::getId, idList);
+        baseMapper.update(updateOne, updateWrapper);
+
+        return true;
+    }
+    #end
+#end
+}

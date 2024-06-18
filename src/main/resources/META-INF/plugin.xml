@@ -1,7 +1,7 @@
 <idea-plugin>
-    <id>com.sjhy.plugin.easycode</id>
+    <id>com.suntek.plugin.easycode</id>
     <name>EasyCode</name>
-    <vendor email="1353036300@qq.com" url="http://www.ieasycode.com:9527">Easy Code Office Website</vendor>
+    <vendor email="liuweixing@pcitech.com" url="https://www.pcitech.com">PCI</vendor>
 
     <description><![CDATA[
       <tag>EasyCode,Easy Code,easy,code,code generate,code tools</tag>
@@ -20,6 +20,17 @@
 
 
     <change-notes><![CDATA[
+      <p>1.2.9-pci.SNAPSHOT</p>
+      <ul>
+        <li>1.新增PCI模板分组</li>
+        <li>2.增加注释截断配置项</li>
+        <li>3.增加生成Excel模板功能（仅限PCI模板分组）</li>
+        <li>4.增加字典列配置功能（仅限单表生成配置）</li>
+        <li>5.优化模板中数据类型判断功能</li>
+        <li>6.支持更多的数据库类型=>Java类型的映射</li>
+        <li>7.增加更多的可配置变量和工具方法</li>
+        <li>8.支持多表配置和多表清除功能</li>
+      </ul>
       <p>1.2.8-java.RELEASE</p>
       <ul>
         <li>1.Fix the error issue caused by missing icons in version 2023.1</li>
@@ -260,7 +271,7 @@
     ]]></change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="171.3780.107"/>
+    <idea-version since-build="232"/>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
@@ -287,15 +298,16 @@
         <applicationService serviceImplementation="com.sjhy.plugin.service.impl.SettingsStorageServiceImpl"/>
         <!--项目服务-->
         <projectService serviceImplementation="com.sjhy.plugin.service.impl.TableInfoSettingsServiceImpl"/>
-        <projectService serviceInterface="com.sjhy.plugin.service.CodeGenerateService" serviceImplementation="com.sjhy.plugin.service.impl.CodeGenerateServiceImpl"/>
+        <!-- 代码生成服务接口定义和实现 -->
+        <projectService serviceInterface="com.sjhy.plugin.service.CodeGenerateService"
+                        serviceImplementation="com.sjhy.plugin.service.impl.CodeGenerateServiceImpl"/>
         <!--系统设置面板-->
-        <applicationConfigurable dynamic="true" instance="com.sjhy.plugin.ui.MainSettingForm"/>
+        <applicationConfigurable dynamic="true" instance="com.sjhy.plugin.ui.MainSettingForm" displayName="EasyCodeSetting"/>
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
-        <group id="con.sjhy.easy.code.action" class="com.sjhy.plugin.actions.MainActionGroup" text="EasyCode"
-               popup="true">
+        <group id="con.sjhy.easy.code.action" class="com.sjhy.plugin.actions.MainActionGroup" text="EasyCode" popup="true">
             <!--生成代码菜单-->
             <add-to-group group-id="DatabaseViewPopupMenu" anchor="first"/>
         </group>

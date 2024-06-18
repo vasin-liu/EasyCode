@@ -14,9 +14,12 @@ import java.awt.event.FocusListener;
  *
  * @author makejava
  * @version 1.0.0
- * @date 2021/08/10 13:38
+ * @since 2021/08/10 13:38
  */
 public class CellEditorFactory {
+
+    private CellEditorFactory() {
+    }
 
     /**
      * 创建下拉框编辑器
@@ -54,7 +57,7 @@ public class CellEditorFactory {
         component.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-
+                // 获得焦点时无需处理
             }
 
             @Override

@@ -47,13 +47,13 @@ public class EasyCodeEntityAction extends AnAction {
                 .filter(f -> f instanceof PsiJavaFile)
                 .map(f -> (PsiJavaFile) f)
                 .collect(Collectors.toList());
-        if (psiJavaFiles.size() == 0) {
+        if (psiJavaFiles.isEmpty()) {
             return;
         }
 
         // 获取选中的类
         List<PsiClass> psiClassList = resolvePsiClassByFile(psiJavaFiles);
-        if (psiClassList.size() == 0) {
+        if (psiClassList.isEmpty()) {
             return;
         }
 
@@ -90,9 +90,6 @@ public class EasyCodeEntityAction extends AnAction {
         VirtualFile file = event.getDataContext().getData(CommonDataKeys.VIRTUAL_FILE);
         if (file != null && !file.isDirectory() && !"java".equals(file.getExtension())) {
             event.getPresentation().setVisible(false);
-            return;
         }
     }
-
-
 }

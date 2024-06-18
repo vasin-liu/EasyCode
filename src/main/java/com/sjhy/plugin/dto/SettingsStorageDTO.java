@@ -3,7 +3,7 @@ package com.sjhy.plugin.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.intellij.ide.fileTemplates.impl.UrlUtil;
 import com.intellij.util.ExceptionUtil;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.entity.*;
 import com.sjhy.plugin.enums.ColumnConfigType;
 import com.sjhy.plugin.tool.CollectionUtil;
@@ -14,13 +14,14 @@ import lombok.Data;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 设置储存传输对象
  *
  * @author makejava
  * @version 1.0.0
- * @date 2021/08/07 11:35
+ * @since 2021/08/07 11:35
  */
 @Data
 public class SettingsStorageDTO {
@@ -32,45 +33,46 @@ public class SettingsStorageDTO {
     public static SettingsStorageDTO defaultVal() {
         try {
             // 从配置文件中加载配置
-            String json = UrlUtil.loadText(SettingsStorageDTO.class.getResource("/defaultConfig.json"));
+            String json = UrlUtil.loadText(Objects.requireNonNull(SettingsStorageDTO.class.getResource("/defaultConfig.json")));
             return JSON.parse(json, SettingsStorageDTO.class);
         } catch (Exception e) {
             ExceptionUtil.rethrow(e);
         }
         // 配置文件加载失败，直接创建配置
         SettingsStorageDTO storage = new SettingsStorageDTO();
-        storage.author = GlobalDict.AUTHOR;
-        storage.version = GlobalDict.VERSION;
+        storage.author = Const.AUTHOR;
+        storage.version = Const.VERSION;
+        storage.fileVersion = Const.FILE_VERSION;
         storage.userSecure = "";
         // 默认分组名称
-        storage.currTypeMapperGroupName = GlobalDict.DEFAULT_GROUP_NAME;
-        storage.currTemplateGroupName = GlobalDict.DEFAULT_GROUP_NAME;
-        storage.currColumnConfigGroupName = GlobalDict.DEFAULT_GROUP_NAME;
-        storage.currGlobalConfigGroupName = GlobalDict.DEFAULT_GROUP_NAME;
+        storage.currTypeMapperGroupName = Const.DEFAULT_GROUP_NAME;
+        storage.currTemplateGroupName = Const.DEFAULT_GROUP_NAME;
+        storage.currColumnConfigGroupName = Const.DEFAULT_GROUP_NAME;
+        storage.currGlobalConfigGroupName = Const.DEFAULT_GROUP_NAME;
         // 默认配置信息
         storage.typeMapperGroupMap = new HashMap<>(16);
         TypeMapperGroup typeMapperGroup = new TypeMapperGroup();
-        typeMapperGroup.setName(GlobalDict.DEFAULT_GROUP_NAME);
-        typeMapperGroup.setElementList(Arrays.asList(new TypeMapper("varchar", "java.lang.String"), new TypeMapper("varchar\\(\\)", "java.lang.String")));
-        storage.typeMapperGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, typeMapperGroup);
+        typeMapperGroup.setName(Const.DEFAULT_GROUP_NAME);
+        typeMapperGroup.setElementList(Arrays.asList(new TypeMapper("varchar" , "java.lang.String"), new TypeMapper("varchar\\(\\)" , "java.lang.String")));
+        storage.typeMapperGroupMap.put(Const.DEFAULT_GROUP_NAME, typeMapperGroup);
 
         ColumnConfigGroup columnConfigGroup = new ColumnConfigGroup();
-        columnConfigGroup.setName(GlobalDict.DEFAULT_GROUP_NAME);
-        columnConfigGroup.setElementList(Arrays.asList(new ColumnConfig("disable", ColumnConfigType.BOOLEAN), new ColumnConfig("operator", ColumnConfigType.SELECT, "insert,update,delete,select")));
+        columnConfigGroup.setName(Const.DEFAULT_GROUP_NAME);
+        columnConfigGroup.setElementList(Arrays.asList(new ColumnConfig("disable" , ColumnConfigType.BOOLEAN), new ColumnConfig("operator" , ColumnConfigType.SELECT, "insert,update,delete,select")));
         storage.columnConfigGroupMap = new HashMap<>(16);
-        storage.columnConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, columnConfigGroup);
+        storage.columnConfigGroupMap.put(Const.DEFAULT_GROUP_NAME, columnConfigGroup);
 
         TemplateGroup templateGroup = new TemplateGroup();
-        templateGroup.setName(GlobalDict.DEFAULT_GROUP_NAME);
-        templateGroup.setElementList(Arrays.asList(new Template("demo", "template"), new Template("entity.java", "public")));
+        templateGroup.setName(Const.DEFAULT_GROUP_NAME);
+        templateGroup.setElementList(Arrays.asList(new Template("demo" , "template"), new Template("entity.java" , "public")));
         storage.templateGroupMap = new HashMap<>(16);
-        storage.templateGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, templateGroup);
+        storage.templateGroupMap.put(Const.DEFAULT_GROUP_NAME, templateGroup);
 
         GlobalConfigGroup globalConfigGroup = new GlobalConfigGroup();
-        globalConfigGroup.setName(GlobalDict.DEFAULT_GROUP_NAME);
-        globalConfigGroup.setElementList(Arrays.asList(new GlobalConfig("test", "abc"), new GlobalConfig("demo", "value")));
+        globalConfigGroup.setName(Const.DEFAULT_GROUP_NAME);
+        globalConfigGroup.setElementList(Arrays.asList(new GlobalConfig("test" , "abc"), new GlobalConfig("demo" , "value")));
         storage.globalConfigGroupMap = new HashMap<>(16);
-        storage.globalConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, globalConfigGroup);
+        storage.globalConfigGroupMap.put(Const.DEFAULT_GROUP_NAME, globalConfigGroup);
         return storage;
     }
 
@@ -81,33 +83,35 @@ public class SettingsStorageDTO {
         SettingsStorageDTO defaultVal = defaultVal();
         this.setAuthor(defaultVal.getAuthor());
         this.setVersion(defaultVal.getVersion());
-        this.setCurrColumnConfigGroupName(GlobalDict.DEFAULT_GROUP_NAME);
-        this.getColumnConfigGroupMap().put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getColumnConfigGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
-        this.setCurrTemplateGroupName(GlobalDict.DEFAULT_GROUP_NAME);
-        this.getTemplateGroupMap().put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getTemplateGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
-        this.setCurrGlobalConfigGroupName(GlobalDict.DEFAULT_GROUP_NAME);
-        this.getGlobalConfigGroupMap().put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getGlobalConfigGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
-        this.setCurrTypeMapperGroupName(GlobalDict.DEFAULT_GROUP_NAME);
-        this.getTypeMapperGroupMap().put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getTypeMapperGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
+        this.setVersion(defaultVal.getFileVersion());
+
+        this.setCurrColumnConfigGroupName(Const.DEFAULT_GROUP_NAME);
+        this.getColumnConfigGroupMap().put(Const.DEFAULT_GROUP_NAME, defaultVal.getColumnConfigGroupMap().get(Const.DEFAULT_GROUP_NAME));
+        this.setCurrTemplateGroupName(Const.DEFAULT_GROUP_NAME);
+        this.getTemplateGroupMap().put(Const.DEFAULT_GROUP_NAME, defaultVal.getTemplateGroupMap().get(Const.DEFAULT_GROUP_NAME));
+        this.setCurrGlobalConfigGroupName(Const.DEFAULT_GROUP_NAME);
+        this.getGlobalConfigGroupMap().put(Const.DEFAULT_GROUP_NAME, defaultVal.getGlobalConfigGroupMap().get(Const.DEFAULT_GROUP_NAME));
+        this.setCurrTypeMapperGroupName(Const.DEFAULT_GROUP_NAME);
+        this.getTypeMapperGroupMap().put(Const.DEFAULT_GROUP_NAME, defaultVal.getTypeMapperGroupMap().get(Const.DEFAULT_GROUP_NAME));
         // 恢复已被删除的分组
         defaultVal.getTemplateGroupMap().forEach((k, v) -> {
             if (!getTemplateGroupMap().containsKey(k)) {
-                getTemplateGroupMap().put(k,v );
+                getTemplateGroupMap().put(k, v);
             }
         });
         defaultVal.getGlobalConfigGroupMap().forEach((k, v) -> {
             if (!getGlobalConfigGroupMap().containsKey(k)) {
-                getGlobalConfigGroupMap().put(k,v );
+                getGlobalConfigGroupMap().put(k, v);
             }
         });
         defaultVal.getColumnConfigGroupMap().forEach((k, v) -> {
             if (!getColumnConfigGroupMap().containsKey(k)) {
-                getColumnConfigGroupMap().put(k,v );
+                getColumnConfigGroupMap().put(k, v);
             }
         });
         defaultVal.getTypeMapperGroupMap().forEach((k, v) -> {
             if (!getTypeMapperGroupMap().containsKey(k)) {
-                getTypeMapperGroupMap().put(k,v );
+                getTypeMapperGroupMap().put(k, v);
             }
         });
     }
@@ -120,6 +124,10 @@ public class SettingsStorageDTO {
      * 版本号
      */
     private String version;
+    /**
+     * 版本号
+     */
+    private String fileVersion;
     /**
      * 用户密钥
      */
@@ -166,48 +174,52 @@ public class SettingsStorageDTO {
         if (CollectionUtil.isEmpty(this.typeMapperGroupMap)) {
             this.typeMapperGroupMap = defaultVal.getTypeMapperGroupMap();
         }
-        if (!this.typeMapperGroupMap.containsKey(GlobalDict.DEFAULT_GROUP_NAME)) {
-            this.typeMapperGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getTypeMapperGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
+        if (!this.typeMapperGroupMap.containsKey(Const.DEFAULT_GROUP_NAME)) {
+            this.typeMapperGroupMap.put(Const.DEFAULT_GROUP_NAME, defaultVal.getTypeMapperGroupMap().get(Const.DEFAULT_GROUP_NAME));
         }
         if (StringUtils.isEmpty(this.currTypeMapperGroupName)) {
-            this.setCurrTypeMapperGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+            this.setCurrTypeMapperGroupName(Const.DEFAULT_GROUP_NAME);
         }
 
 
         if (CollectionUtil.isEmpty(this.templateGroupMap)) {
             this.templateGroupMap = defaultVal.getTemplateGroupMap();
         }
-        if (!this.templateGroupMap.containsKey(GlobalDict.DEFAULT_GROUP_NAME)) {
-            this.templateGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getTemplateGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
+        if (!this.templateGroupMap.containsKey(Const.DEFAULT_GROUP_NAME)) {
+            this.templateGroupMap.put(Const.DEFAULT_GROUP_NAME, defaultVal.getTemplateGroupMap().get(Const.DEFAULT_GROUP_NAME));
         }
         if (StringUtils.isEmpty(this.currTemplateGroupName)) {
-            this.setCurrTemplateGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+            this.setCurrTemplateGroupName(Const.DEFAULT_GROUP_NAME);
         }
 
 
         if (CollectionUtil.isEmpty(this.columnConfigGroupMap)) {
             this.columnConfigGroupMap = defaultVal.getColumnConfigGroupMap();
         }
-        if (!this.columnConfigGroupMap.containsKey(GlobalDict.DEFAULT_GROUP_NAME)) {
-            this.columnConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getColumnConfigGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
+        if (!this.columnConfigGroupMap.containsKey(Const.DEFAULT_GROUP_NAME)) {
+            this.columnConfigGroupMap.put(Const.DEFAULT_GROUP_NAME, defaultVal.getColumnConfigGroupMap().get(Const.DEFAULT_GROUP_NAME));
         }
         if (StringUtils.isEmpty(this.currColumnConfigGroupName)) {
-            this.setCurrColumnConfigGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+            this.setCurrColumnConfigGroupName(Const.DEFAULT_GROUP_NAME);
         }
 
 
         if (CollectionUtil.isEmpty(this.globalConfigGroupMap)) {
             this.globalConfigGroupMap = defaultVal.getGlobalConfigGroupMap();
         }
-        if (!this.globalConfigGroupMap.containsKey(GlobalDict.DEFAULT_GROUP_NAME)) {
-            this.globalConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getGlobalConfigGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
+        if (!this.globalConfigGroupMap.containsKey(Const.DEFAULT_GROUP_NAME)) {
+            this.globalConfigGroupMap.put(Const.DEFAULT_GROUP_NAME, defaultVal.getGlobalConfigGroupMap().get(Const.DEFAULT_GROUP_NAME));
         }
         if (StringUtils.isEmpty(this.currGlobalConfigGroupName)) {
-            this.setCurrGlobalConfigGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+            this.setCurrGlobalConfigGroupName(Const.DEFAULT_GROUP_NAME);
         }
 
         if (StringUtils.isEmpty(this.version)) {
             this.setVersion(defaultVal.getVersion());
+        }
+
+        if (StringUtils.isEmpty(this.fileVersion)) {
+            this.setVersion(defaultVal.getFileVersion());
         }
     }
 }

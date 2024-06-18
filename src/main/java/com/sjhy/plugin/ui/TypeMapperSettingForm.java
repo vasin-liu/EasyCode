@@ -2,7 +2,7 @@ package com.sjhy.plugin.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.openapi.ui.ComboBoxTableRenderer;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.entity.TypeMapperGroup;
@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 /**
  * @author makejava
  * @version 1.0.0
- * @date 2021/08/07 15:33
+ * @since 2021/08/07 15:33
  */
 public class TypeMapperSettingForm implements BaseSettings {
     private final JPanel mainPanel;
@@ -66,8 +66,8 @@ public class TypeMapperSettingForm implements BaseSettings {
         TableCellEditor columnTypeEditor = CellEditorFactory.createTextFieldEditor();
         TableComponent.Column<TypeMapper> columnTypeColumn = new TableComponent.Column<>("columnType", TypeMapper::getColumnType, TypeMapper::setColumnType, columnTypeEditor, null);
         // 第三列支持下拉框
-        TableCellEditor javaTypeEditor = CellEditorFactory.createComboBoxEditor(true, GlobalDict.DEFAULT_JAVA_TYPE_LIST);
-        TableCellRenderer javaTypeRenderer = new ComboBoxTableRenderer<>(GlobalDict.DEFAULT_JAVA_TYPE_LIST);
+        TableCellEditor javaTypeEditor = CellEditorFactory.createComboBoxEditor(true, Const.DEFAULT_JAVA_TYPE_LIST);
+        TableCellRenderer javaTypeRenderer = new ComboBoxTableRenderer<>(Const.DEFAULT_JAVA_TYPE_LIST);
         TableComponent.Column<TypeMapper> javaTypeColumn = new TableComponent.Column<>("javaType", TypeMapper::getJavaType, TypeMapper::setJavaType, javaTypeEditor, javaTypeRenderer);
         List<TableComponent.Column<TypeMapper>> columns = Arrays.asList(matchTypeColumn, columnTypeColumn, javaTypeColumn);
         // 表格初始化
@@ -125,11 +125,11 @@ public class TypeMapperSettingForm implements BaseSettings {
     @Override
     public void loadSettingsStore(SettingsStorageDTO settingsStorage) {
         // 复制配置，防止篡改
-        this.typeMapperGroupMap = CloneUtils.cloneByJson(settingsStorage.getTypeMapperGroupMap(), new TypeReference<Map<String, TypeMapperGroup>>() {
+        this.typeMapperGroupMap = CloneUtils.cloneByJson(settingsStorage.getTypeMapperGroupMap(), new TypeReference<>() {
         });
         this.currTypeMapperGroup = this.typeMapperGroupMap.get(settingsStorage.getCurrTypeMapperGroupName());
         if (this.currTypeMapperGroup == null) {
-            this.currTypeMapperGroup = this.typeMapperGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
+            this.currTypeMapperGroup = this.typeMapperGroupMap.get(Const.DEFAULT_GROUP_NAME);
         }
         this.refreshUiVal();
     }

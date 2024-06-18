@@ -3,7 +3,7 @@ package com.sjhy.plugin;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.*;
 import com.sjhy.plugin.tool.JSON;
@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * 生成默认配置测试
@@ -21,16 +20,19 @@ import java.util.List;
  *
  * @author makejava
  * @version 1.0.0
- * @date 2021/08/14 11:11
+ * @since 2021/08/14 11:11
  */
 public class GenerateDefaultConfigTest {
+
+    private final String encoding = "UTF-8";
 
 
     @Test
     public void generate() throws IOException {
         SettingsStorageDTO settingsStorage = new SettingsStorageDTO();
-        settingsStorage.setAuthor(GlobalDict.AUTHOR);
-        settingsStorage.setVersion(GlobalDict.VERSION);
+        settingsStorage.setAuthor(Const.AUTHOR);
+        settingsStorage.setVersion(Const.VERSION);
+        settingsStorage.setFileVersion(Const.FILE_VERSION);
         settingsStorage.setUserSecure("");
         File templateDir = new File(GenerateDefaultConfigTest.class.getResource("/template").getFile());
         loadTemplate(settingsStorage, templateDir);
@@ -47,14 +49,14 @@ public class GenerateDefaultConfigTest {
         String json = JSON.toJson(settingsStorage);
         // 所有的换行符号均改为\n
         // 1.windows处理
-        json = json.replace("\\r\\n", "\\n");
+        json = json.replace("\\r\\n" , "\\n");
         // 2.mac处理
-        json = json.replace("\\r", "\\n");
-        FileUtil.writeToFile(new File(GenerateDefaultConfigTest.class.getResource("/").getFile().replace("out", "src").replace("test", "main").replace("classes", "resources") + "defaultConfig.json"), json);
+        json = json.replace("\\r" , "\\n");
+        FileUtil.writeToFile(new File(GenerateDefaultConfigTest.class.getResource("/").getFile().replace("out" , "src").replace("test" , "main").replace("classes" , "resources") + "defaultConfig.json"), json);
     }
 
     private void loadTemplate(SettingsStorageDTO settingsStorage, File root) throws IOException {
-        settingsStorage.setCurrTemplateGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+        settingsStorage.setCurrTemplateGroupName(Const.DEFAULT_GROUP_NAME);
         settingsStorage.setTemplateGroupMap(new HashMap<>(root.listFiles().length));
         for (File dir : root.listFiles()) {
             TemplateGroup templateGroup = new TemplateGroup();
@@ -64,7 +66,7 @@ public class GenerateDefaultConfigTest {
                 for (File file : dir.listFiles()) {
                     Template template = new Template();
                     template.setName(file.getName());
-                    template.setCode(FileUtilRt.loadFile(file));
+                    template.setCode(FileUtilRt.loadFile(file, encoding));
                     templateGroup.getElementList().add(template);
                 }
             }
@@ -73,7 +75,7 @@ public class GenerateDefaultConfigTest {
     }
 
     private void loadGlobalConfig(SettingsStorageDTO settingsStorage, File root) throws IOException {
-        settingsStorage.setCurrGlobalConfigGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+        settingsStorage.setCurrGlobalConfigGroupName(Const.DEFAULT_GROUP_NAME);
         settingsStorage.setGlobalConfigGroupMap(new HashMap<>(root.listFiles().length));
         for (File dir : root.listFiles()) {
             GlobalConfigGroup globalConfigGroup = new GlobalConfigGroup();
@@ -83,7 +85,7 @@ public class GenerateDefaultConfigTest {
                 for (File file : dir.listFiles()) {
                     GlobalConfig globalConfig = new GlobalConfig();
                     globalConfig.setName(file.getName());
-                    globalConfig.setValue(FileUtilRt.loadFile(file));
+                    globalConfig.setValue(FileUtilRt.loadFile(file, encoding));
                     globalConfigGroup.getElementList().add(globalConfig);
                 }
             }
@@ -92,14 +94,14 @@ public class GenerateDefaultConfigTest {
     }
 
     private void loadTypeMapper(SettingsStorageDTO settingsStorage, File root) throws IOException {
-        settingsStorage.setCurrTypeMapperGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+        settingsStorage.setCurrTypeMapperGroupName(Const.DEFAULT_GROUP_NAME);
         settingsStorage.setTypeMapperGroupMap(new HashMap<>(root.listFiles().length));
         for (File file : root.listFiles()) {
             TypeMapperGroup typeMapperGroup = new TypeMapperGroup();
-            typeMapperGroup.setName(file.getName().replace(".json", ""));
+            typeMapperGroup.setName(file.getName().replace(".json" , ""));
             if (file.isFile()) {
-                String json = FileUtilRt.loadFile(file);
-                typeMapperGroup.setElementList(JSON.parse(json, new TypeReference<List<TypeMapper>>() {
+                String json = FileUtilRt.loadFile(file, encoding);
+                typeMapperGroup.setElementList(JSON.parse(json, new TypeReference<>() {
                 }));
             }
             settingsStorage.getTypeMapperGroupMap().put(typeMapperGroup.getName(), typeMapperGroup);
@@ -107,14 +109,14 @@ public class GenerateDefaultConfigTest {
     }
 
     private void loadColumnConfig(SettingsStorageDTO settingsStorage, File root) throws IOException {
-        settingsStorage.setCurrColumnConfigGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+        settingsStorage.setCurrColumnConfigGroupName(Const.DEFAULT_GROUP_NAME);
         settingsStorage.setColumnConfigGroupMap(new HashMap<>(root.listFiles().length));
         for (File file : root.listFiles()) {
             ColumnConfigGroup columnConfigGroup = new ColumnConfigGroup();
-            columnConfigGroup.setName(file.getName().replace(".json", ""));
+            columnConfigGroup.setName(file.getName().replace(".json" , ""));
             if (file.isFile()) {
-                String json = FileUtilRt.loadFile(file);
-                columnConfigGroup.setElementList(JSON.parse(json, new TypeReference<List<ColumnConfig>>() {
+                String json = FileUtilRt.loadFile(file, encoding);
+                columnConfigGroup.setElementList(JSON.parse(json, new TypeReference<>() {
                 }));
             }
             settingsStorage.getColumnConfigGroupMap().put(columnConfigGroup.getName(), columnConfigGroup);

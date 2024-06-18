@@ -5,9 +5,10 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiElement;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.service.TableInfoSettingsService;
 import com.sjhy.plugin.tool.CacheDataUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,23 +26,7 @@ public class MainActionGroup extends ActionGroup {
     /**
      * 缓存数据工具类
      */
-    private CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
-
-    /**
-     * 是否不存在子菜单
-     */
-    private boolean notExistsChildren;
-
-    /**
-     * 是否分组按钮
-     *
-     * @return 是否隐藏
-     */
-    @Override
-    public boolean hideIfNoVisibleChildren() {
-        return this.notExistsChildren;
-    }
-
+    private final CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
 
     /**
      * 根据右键在不同的选项上展示不同的子菜单
@@ -74,11 +59,9 @@ public class MainActionGroup extends ActionGroup {
         }
         List<DbTable> dbTableList = new ArrayList<>();
         for (PsiElement element : psiElements) {
-            if (!(element instanceof DbTable)) {
-                continue;
+            if (element instanceof DbTable dbTable) {
+                dbTableList.add(dbTable);
             }
-            DbTable dbTable = (DbTable) element;
-            dbTableList.add(dbTable);
         }
         if (dbTableList.isEmpty()) {
             return getEmptyAnAction();
@@ -87,7 +70,6 @@ public class MainActionGroup extends ActionGroup {
         //保存数据到缓存
         cacheDataUtils.setDbTableList(dbTableList);
         cacheDataUtils.setSelectDbTable(selectDbTable);
-        this.notExistsChildren = false;
         return getMenuList();
     }
 
@@ -115,12 +97,22 @@ public class MainActionGroup extends ActionGroup {
         AnAction clearConfigAction = new AnAction("Clear Config") {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                DbTable dbTable = CacheDataUtils.getInstance().getSelectDbTable();
+                CacheDataUtils cdu = CacheDataUtils.getInstance();
+                DbTable dbTable = cdu.getSelectDbTable();
                 if (dbTable == null) {
                     return;
                 }
-                TableInfoSettingsService.getInstance().removeTableInfo(dbTable);
-                Messages.showInfoMessage(dbTable.getName() + "表配置信息已重置成功", GlobalDict.TITLE_INFO);
+                TableInfoSettingsService tiss = TableInfoSettingsService.getInstance();
+                tiss.removeTableInfo(dbTable);
+
+                List<DbTable> dbTables = cdu.getDbTableList();
+                if (CollectionUtils.isEmpty(dbTables)) {
+                    return;
+                }
+                for (DbTable table : dbTables) {
+                    tiss.removeTableInfo(table);
+                }
+                Messages.showInfoMessage("表配置信息已重置成功" , Const.TITLE_INFO);
             }
         };
         // 返回所有菜单
@@ -134,7 +126,6 @@ public class MainActionGroup extends ActionGroup {
      * @return 空菜单组
      */
     private AnAction[] getEmptyAnAction() {
-        this.notExistsChildren = true;
         return AnAction.EMPTY_ARRAY;
     }
 }

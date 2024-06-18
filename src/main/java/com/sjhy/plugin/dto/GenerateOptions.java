@@ -1,5 +1,6 @@
 package com.sjhy.plugin.dto;
 
+import com.sjhy.plugin.enums.ExcelExportType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -33,4 +34,12 @@ public class GenerateOptions {
      * 提示选否
      */
     private Boolean titleRefuse;
+    /**
+     * Excel导出类型
+     */
+    private ExcelExportType excelExportType;
+    /**
+     * 截断注释内容
+     */
+    private Boolean truncateComment;
 }

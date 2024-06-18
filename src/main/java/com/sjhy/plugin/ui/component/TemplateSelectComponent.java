@@ -4,6 +4,7 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBCheckBox;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
+import com.sjhy.plugin.enums.ExcelExportType;
 import com.sjhy.plugin.service.SettingsStorageService;
 import com.sjhy.plugin.tool.StringUtils;
 import lombok.Getter;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
  *
  * @author makejava
  * @version 1.0.0
- * @date 2021/08/16 16:18
+ * @since 2021/08/16 16:18
  */
 public class TemplateSelectComponent {
     @Getter
@@ -48,6 +49,11 @@ public class TemplateSelectComponent {
      */
     private JPanel templatePanel;
 
+    /**
+     * 导出类型
+     */
+    private JComboBox<ExcelExportType> exportTypeComboBox;
+
     public TemplateSelectComponent() {
         this.init();
     }
@@ -67,7 +73,7 @@ public class TemplateSelectComponent {
                 refreshTemplatePanel(groupName);
             }
         });
-        this.allCheckbox = new JBCheckBox("All");
+        this.allCheckbox = new JBCheckBox("全部");
         this.allCheckbox.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -82,7 +88,7 @@ public class TemplateSelectComponent {
         topPanel.add(this.groupComboBox, BorderLayout.WEST);
         topPanel.add(this.allCheckbox, BorderLayout.EAST);
         this.mainPanel.add(topPanel, BorderLayout.NORTH);
-        this.templatePanel = new JPanel(new GridLayout(-1, 2));
+        this.templatePanel = new JPanel(new BorderLayout());
         this.mainPanel.add(templatePanel, BorderLayout.CENTER);
         this.refreshData();
     }
@@ -95,6 +101,7 @@ public class TemplateSelectComponent {
     }
 
     private void refreshTemplatePanel(String groupName) {
+        JPanel checkBoxPanel = new JPanel(new GridLayout(-1, 2));
         this.allCheckbox.setSelected(false);
         this.templatePanel.removeAll();
         this.checkBoxList = new ArrayList<>();
@@ -102,12 +109,22 @@ public class TemplateSelectComponent {
         for (Template template : templateGroup.getElementList()) {
             JBCheckBox checkBox = new JBCheckBox(template.getName());
             this.checkBoxList.add(checkBox);
-            this.templatePanel.add(checkBox);
+            checkBoxPanel.add(checkBox);
         }
-        this.mainPanel.updateUI();
+        this.templatePanel.add(checkBoxPanel, BorderLayout.NORTH);
+
+        if ("PCI".equalsIgnoreCase(groupName)) {
+            JPanel exportPanel = new JPanel(new BorderLayout());
+            exportPanel.add(new JLabel("导出类型"), BorderLayout.WEST);
+            this.exportTypeComboBox = new ComboBox<>(ExcelExportType.values());
+            exportPanel.add(this.exportTypeComboBox, BorderLayout.EAST);
+            this.templatePanel.add(exportPanel, BorderLayout.SOUTH);
+        }
+        this.templatePanel.updateUI();
     }
 
-    public String getselectedGroupName() {
+
+    public String getSelectedGroupName() {
         return (String) this.groupComboBox.getSelectedItem();
     }
 
@@ -132,5 +149,9 @@ public class TemplateSelectComponent {
             }
         }
         return result;
+    }
+
+    public ExcelExportType getExportType() {
+        return (ExcelExportType) exportTypeComboBox.getSelectedItem();
     }
 }

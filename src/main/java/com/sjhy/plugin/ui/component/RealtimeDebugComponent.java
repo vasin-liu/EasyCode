@@ -22,7 +22,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.ReflectionUtil;
 import com.intellij.util.containers.JBIterable;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.service.CodeGenerateService;
@@ -106,7 +106,7 @@ public class RealtimeDebugComponent {
         } else {
             Method method = ReflectionUtil.getMethod(DbPsiFacade.class, "findElement", DasObject.class);
             if (method == null) {
-                Messages.showWarningDialog("findElement method not found", GlobalDict.TITLE_INFO);
+                Messages.showWarningDialog("findElement method not found", Const.TITLE_INFO);
                 return;
             }
             try {
@@ -136,7 +136,7 @@ public class RealtimeDebugComponent {
         ((EditorEx) editor).setHighlighter(EditorHighlighterFactory.getInstance().createEditorHighlighter(ProjectUtils.getCurrProject(), fileName));
         // 构建dialog
         DialogBuilder dialogBuilder = new DialogBuilder(ProjectUtils.getCurrProject());
-        dialogBuilder.setTitle(GlobalDict.TITLE_INFO);
+        dialogBuilder.setTitle(Const.TITLE_INFO);
         JComponent component = editor.getComponent();
         component.setPreferredSize(new Dimension(800, 600));
         dialogBuilder.setCenterPanel(component);

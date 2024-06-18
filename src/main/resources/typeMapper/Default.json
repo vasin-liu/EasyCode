@@ -11,13 +11,23 @@
   },
   {
     "matchType": "REGEX",
-    "columnType": "(tiny|medium|long)*text",
+    "columnType": "(tiny|medium|long)*text(\\(max\\))*",
     "javaType": "java.lang.String"
   },
   {
     "matchType": "REGEX",
-    "columnType": "decimal(\\(\\d+,\\d+\\))?",
-    "javaType": "java.lang.Double"
+    "columnType": "(String|FixedString)(\\(\\d+\\))?",
+    "javaType": "java.lang.String"
+  },
+  {
+    "matchType": "ORDINARY",
+    "columnType": "string",
+    "javaType": "java.lang.String"
+  },
+  {
+    "matchType": "REGEX",
+    "columnType": "Decimal|Decimal\\d+\\(\\d+\\)?|decimal(\\(\\d+,\\d+\\))?",
+    "javaType": "java.math.BigDecimal"
   },
   {
     "matchType": "ORDINARY",
@@ -27,6 +37,11 @@
   {
     "matchType": "REGEX",
     "columnType": "(tiny|small|medium)*int(\\(\\d+\\))?",
+    "javaType": "java.lang.Integer"
+  },
+  {
+    "matchType": "REGEX",
+    "columnType": "(uint|int)16?",
     "javaType": "java.lang.Integer"
   },
   {
@@ -41,8 +56,18 @@
   },
   {
     "matchType": "REGEX",
+    "columnType": "(uint|int)(32|64)?",
+    "javaType": "java.lang.Long"
+  },
+  {
+    "matchType": "REGEX",
     "columnType": "bigint(\\(\\d+\\))?",
     "javaType": "java.lang.Long"
+  },
+  {
+    "matchType": "REGEX",
+    "columnType": "float|float32|float64|float\\d+",
+    "javaType": "java.lang.Double"
   },
   {
     "matchType": "ORDINARY",
@@ -50,8 +75,8 @@
     "javaType": "java.util.Date"
   },
   {
-    "matchType": "ORDINARY",
-    "columnType": "datetime",
+    "matchType": "REGEX",
+    "columnType": "datetime|datetime\\d+|datetime(\\(\\d+\\))?|datetime(\\(\\d+\\,\\d+\\))?",
     "javaType": "java.util.Date"
   },
   {

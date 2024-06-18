@@ -27,4 +27,12 @@ public class Callback {
      * 是否写入文件，部分模块不需要写入文件。例如debug.json模板
      */
     private Boolean writeFile;
+    /**
+     * 是否使用模板导出Excel
+     */
+    private Boolean exportExcelWithTemplate;
+    /**
+     * 是否截断注释
+     */
+    private Boolean truncateComment;
 }

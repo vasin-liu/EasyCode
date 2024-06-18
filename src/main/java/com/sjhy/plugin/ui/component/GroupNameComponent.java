@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.components.JBLabel;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.entity.AbstractGroup;
 import com.sjhy.plugin.entity.AbstractItem;
 import com.sjhy.plugin.tool.StringUtils;
@@ -26,11 +26,11 @@ import java.util.function.Consumer;
  *
  * @author makejava
  * @version 1.0.0
- * @date 2021/08/10 14:13
+ * @since 2021/08/10 14:13
  */
 public class GroupNameComponent<E extends AbstractItem<E>, T extends AbstractGroup<T, E>> {
 
-    private Consumer<T> switchGroupConsumer;
+    private final Consumer<T> switchGroupConsumer;
 
     /**
      * 当前分组
@@ -60,7 +60,7 @@ public class GroupNameComponent<E extends AbstractItem<E>, T extends AbstractGro
      * @param consumer  消费分组名
      */
     private void inputGroupName(String initValue, Consumer<String> consumer) {
-        String value = Messages.showInputDialog("Group Name:", "Input Group Name:", Messages.getQuestionIcon(), initValue, new InputExistsValidator(groupMap.keySet()));
+        String value = Messages.showInputDialog("Group Name:" , "Input Group Name:" , Messages.getQuestionIcon(), initValue, new InputExistsValidator(groupMap.keySet()));
         if (StringUtils.isEmpty(value)) {
             return;
         }
@@ -71,7 +71,7 @@ public class GroupNameComponent<E extends AbstractItem<E>, T extends AbstractGro
         return new AnAction(AllIcons.Actions.Copy) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                inputGroupName(currGroupName + "Copy", groupName -> {
+                inputGroupName(currGroupName + "Copy" , groupName -> {
                     // 复制一份，重名命
                     T cloneObj = groupMap.get(currGroupName).cloneObj();
                     cloneObj.setName(groupName);
@@ -88,7 +88,7 @@ public class GroupNameComponent<E extends AbstractItem<E>, T extends AbstractGro
         return new AnAction(AllIcons.General.Add) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                inputGroupName("GroupName", groupName -> {
+                inputGroupName("GroupName" , groupName -> {
                     T obj = groupMap.get(currGroupName).cloneObj();
                     E item = obj.defaultChild();
                     obj.setName(groupName);
@@ -108,12 +108,12 @@ public class GroupNameComponent<E extends AbstractItem<E>, T extends AbstractGro
             public void actionPerformed(@NotNull AnActionEvent e) {
                 groupMap.remove(currGroupName);
                 // 切换分组
-                switchGroupConsumer.accept(groupMap.get(GlobalDict.DEFAULT_GROUP_NAME));
+                switchGroupConsumer.accept(groupMap.get(Const.DEFAULT_GROUP_NAME));
             }
 
             @Override
             public void update(@NotNull AnActionEvent e) {
-                e.getPresentation().setEnabled(!GlobalDict.DEFAULT_GROUP_NAME.equals(currGroupName));
+                e.getPresentation().setEnabled(!Const.DEFAULT_GROUP_NAME.equals(currGroupName));
             }
         };
     }
@@ -125,7 +125,7 @@ public class GroupNameComponent<E extends AbstractItem<E>, T extends AbstractGro
         this.panel.add(this.groupComboBox);
         // 分组操作
         DefaultActionGroup groupAction = new DefaultActionGroup(Arrays.asList(this.copyAction(), this.addAction(), this.removeAction()));
-        ActionToolbar groupActionToolbar = ActionManager.getInstance().createActionToolbar("Group Toolbar", groupAction, true);
+        ActionToolbar groupActionToolbar = ActionManager.getInstance().createActionToolbar("Group Toolbar" , groupAction, true);
         this.panel.add(groupActionToolbar.getComponent());
         this.groupComboBox.addActionListener(new AbstractAction() {
             @Override

@@ -11,7 +11,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.containers.JBIterable;
 import com.intellij.util.ui.JBUI;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.enums.MatchType;
 import com.sjhy.plugin.tool.CacheDataUtils;
@@ -84,7 +84,7 @@ public class MainAction extends AnAction {
 
         FLAG:
         for (DasColumn column : columns) {
-            String typeName = column.getDataType().getSpecification();
+            String typeName = column.getDasType().toDataType().getSpecification();
             for (TypeMapper typeMapper : typeMapperList) {
                 try {
                     if (typeMapper.getMatchType() == MatchType.ORDINARY) {
@@ -101,7 +101,7 @@ public class MainAction extends AnAction {
                     if (!errorCount.contains(typeMapper.getColumnType())) {
                         Messages.showWarningDialog(
                                 "类型映射《" + typeMapper.getColumnType() + "》存在语法错误，请及时修正。报错信息:" + e.getMessage(),
-                                GlobalDict.TITLE_INFO);
+                                Const.TITLE_INFO);
                         errorCount.add(typeMapper.getColumnType());
                     }
                 }
@@ -114,7 +114,7 @@ public class MainAction extends AnAction {
 
     public static class Dialog  extends DialogWrapper {
 
-        private String typeName;
+        private final String typeName;
 
         private JPanel mainPanel;
 
@@ -127,13 +127,13 @@ public class MainAction extends AnAction {
         }
 
         private void initPanel() {
-            setTitle(GlobalDict.TITLE_INFO);
+            setTitle(Const.TITLE_INFO);
             String msg = String.format("数据库类型%s，没有找到映射关系，请输入想转换的类型？", typeName);
             JLabel label = new JLabel(msg);
             this.mainPanel = new JPanel(new BorderLayout());
             this.mainPanel.setBorder(JBUI.Borders.empty(5, 10, 7, 10));
             mainPanel.add(label, BorderLayout.NORTH);
-            this.comboBox = new ComboBox<>(GlobalDict.DEFAULT_JAVA_TYPE_LIST);
+            this.comboBox = new ComboBox<>(Const.DEFAULT_JAVA_TYPE_LIST);
             this.comboBox.setEditable(true);
             this.mainPanel.add(this.comboBox, BorderLayout.CENTER);
             init();

@@ -3,6 +3,7 @@ package com.sjhy.plugin.dto;
 import com.intellij.database.model.DasColumn;
 import com.intellij.database.psi.DbTable;
 import com.intellij.database.util.DasUtil;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.util.containers.JBIterable;
@@ -23,11 +24,12 @@ import java.util.stream.Collectors;
  *
  * @author makejava
  * @version 1.0.0
- * @date 2021/08/14 17:28
+ * @since 2021/08/14 17:28
  */
 @Data
 @NoArgsConstructor
 public class TableInfoDTO {
+    private static final Logger LOG = Logger.getInstance(TableInfoDTO.class);
 
     public TableInfoDTO(TableInfoDTO dto, DbTable dbTable) {
         this(dbTable);
@@ -92,7 +94,7 @@ public class TableInfoDTO {
         // 列出旧的顺序，并删除已经不存在的列，不包括自定义列
         List<ColumnInfoDTO> oldSequenceColumn = oldData.getFullColumn().stream()
                 .filter(item -> allNewColumnNames.contains(item.getName()) || Boolean.TRUE.equals(item.getCustom()))
-                .collect(Collectors.toList());
+                .toList();
         // 尽可能的保留原始顺序(把自定义列按原始位置插入)
         Map<String, String> nameMap = new HashMap<>(oldSequenceColumn.size());
         for (int i = 0; i < oldSequenceColumn.size(); i++) {
@@ -124,8 +126,10 @@ public class TableInfoDTO {
             }
         });
         // 按顺序依次重写数据
-        Map<String, ColumnInfoDTO> oldColumnMap = oldData.getFullColumn().stream().collect(Collectors.toMap(ColumnInfoDTO::getName, v -> v));
-        Map<String, ColumnInfoDTO> newColumnMap = newData.getFullColumn().stream().collect(Collectors.toMap(ColumnInfoDTO::getName, v -> v));
+        Map<String, ColumnInfoDTO> oldColumnMap = oldData.getFullColumn().stream()
+                .collect(Collectors.toMap(ColumnInfoDTO::getName, v -> v));
+        Map<String, ColumnInfoDTO> newColumnMap = newData.getFullColumn().stream()
+                .collect(Collectors.toMap(ColumnInfoDTO::getName, v -> v));
         List<ColumnInfoDTO> tmpList = new ArrayList<>();
         for (String name : allNewColumnNames) {
             ColumnInfoDTO newColumnInfo = newColumnMap.get(name);
@@ -153,7 +157,6 @@ public class TableInfoDTO {
         newData.getFullColumn().clear();
         newData.getFullColumn().addAll(tmpList);
     }
-
 
     /**
      * 表名（首字母大写）
@@ -206,6 +209,7 @@ public class TableInfoDTO {
                 continue;
             }
             ColumnInfo columnInfo = new ColumnInfo();
+            columnInfo.setOriginalName(field.getName());
             columnInfo.setName(field.getName());
             columnInfo.setShortType(field.getType().getPresentableText());
             columnInfo.setType(field.getType().getCanonicalText());

@@ -50,11 +50,12 @@ public class StringUtils {
      * @return 是否为空
      */
     public static boolean isEmpty(final CharSequence cs) {
-        return cs == null || cs.length() == 0;
+        return cs == null || cs.isEmpty();
     }
 
     /**
      * 首字母大写方法
+     *
      * @param str 字符串
      * @return 首字母大写结果
      */
@@ -64,10 +65,19 @@ public class StringUtils {
 
     /**
      * 首字母小写方法
+     *
      * @param str 字符串
      * @return 首字母小写结果
      */
     public static String uncapitalize(final String str) {
         return FIRST_CHAR_HANDLER_FUN.apply(str, Character::toLowerCase);
+    }
+
+    public static String getFirstFragment(String str) {
+        if (isEmpty(str)) {
+            return str;
+        }
+        String regex = "[^\\p{L}\\p{IsHan}]";
+        return str.split(regex)[0];
     }
 }

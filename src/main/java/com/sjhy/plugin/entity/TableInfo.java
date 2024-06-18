@@ -30,6 +30,11 @@ public class TableInfo {
     private Object psiClassObj;
 
     /**
+     * 原始表名
+     */
+    private String originalName;
+
+    /**
      * 表名（首字母大写）
      */
     private String name;

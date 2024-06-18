@@ -1,26 +1,32 @@
 package com.sjhy.plugin.service.impl;
 
+import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.excel.support.ExcelTypeEnum;
+import com.alibaba.excel.util.ListUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.database.util.DasUtil;
 import com.intellij.database.util.DbUtil;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.util.ReflectionUtil;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.dto.GenerateOptions;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
-import com.sjhy.plugin.entity.Callback;
-import com.sjhy.plugin.entity.SaveFile;
-import com.sjhy.plugin.entity.TableInfo;
-import com.sjhy.plugin.entity.Template;
+import com.sjhy.plugin.entity.*;
+import com.sjhy.plugin.enums.ExcelExportType;
 import com.sjhy.plugin.service.CodeGenerateService;
 import com.sjhy.plugin.service.SettingsStorageService;
 import com.sjhy.plugin.service.TableInfoSettingsService;
 import com.sjhy.plugin.tool.*;
 
+import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,22 +36,24 @@ import java.util.stream.Collectors;
  * @since 2018/09/02 12:50
  */
 public class CodeGenerateServiceImpl implements CodeGenerateService {
+    private static final Logger LOG = Logger.getInstance(CodeGenerateServiceImpl.class);
     /**
      * 项目对象
      */
-    private Project project;
+    private final Project project;
     /**
      * 模型管理
      */
-    private ModuleManager moduleManager;
+    private final ModuleManager moduleManager;
     /**
      * 表信息服务
      */
-    private TableInfoSettingsService tableInfoService;
+    private final TableInfoSettingsService tableInfoService;
     /**
      * 缓存数据工具
      */
-    private CacheDataUtils cacheDataUtils;
+    private final CacheDataUtils cacheDataUtils;
+    private final FileUtils fileUtils;
     /**
      * 导入包时过滤的包前缀
      */
@@ -56,6 +64,7 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         this.moduleManager = ModuleManager.getInstance(project);
         this.tableInfoService = TableInfoSettingsService.getInstance();
         this.cacheDataUtils = CacheDataUtils.getInstance();
+        this.fileUtils = FileUtils.getInstance();
     }
 
     /**
@@ -71,20 +80,26 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         List<TableInfo> tableInfoList;
         if (Boolean.TRUE.equals(generateOptions.getEntityModel())) {
             selectedTableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectPsiClass());
-            tableInfoList = cacheDataUtils.getPsiClassList().stream().map(item -> tableInfoService.getTableInfo(item)).collect(Collectors.toList());
+            tableInfoList = cacheDataUtils.getPsiClassList()
+                    .stream()
+                    .map(tableInfoService::getTableInfo)
+                    .collect(Collectors.toList());
         } else {
             selectedTableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectDbTable());
-            tableInfoList = cacheDataUtils.getDbTableList().stream().map(item -> tableInfoService.getTableInfo(item)).collect(Collectors.toList());
+            tableInfoList = cacheDataUtils.getDbTableList()
+                    .stream()
+                    .map(tableInfoService::getTableInfo)
+                    .collect(Collectors.toList());
         }
         // 校验选中表的保存路径是否正确
         if (StringUtils.isEmpty(selectedTableInfo.getSavePath())) {
             if (selectedTableInfo.getObj() != null) {
-                Messages.showInfoMessage(selectedTableInfo.getObj().getName() + "表配置信息不正确，请尝试重新配置", GlobalDict.TITLE_INFO);
+                Messages.showInfoMessage(selectedTableInfo.getObj().getName() + "表配置信息不正确，请尝试重新配置", Const.TITLE_INFO);
             } else if (selectedTableInfo.getPsiClassObj() != null) {
                 PsiClass psiClassObj = (PsiClass) selectedTableInfo.getPsiClassObj();
-                Messages.showInfoMessage(psiClassObj.getName() + "类配置信息不正确，请尝试重新配置", GlobalDict.TITLE_INFO);
+                Messages.showInfoMessage(psiClassObj.getName() + "类配置信息不正确，请尝试重新配置", Const.TITLE_INFO);
             } else {
-                Messages.showInfoMessage("配置信息不正确，请尝试重新配置", GlobalDict.TITLE_INFO);
+                Messages.showInfoMessage("配置信息不正确，请尝试重新配置", Const.TITLE_INFO);
             }
             return;
         }
@@ -121,7 +136,8 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
      * @param generateOptions 生成配置
      * @param otherParam      其他参数
      */
-    public void generate(Collection<Template> templates, Collection<TableInfo> tableInfoList, GenerateOptions generateOptions, Map<String, Object> otherParam) {
+    public void generate(Collection<Template> templates, Collection<TableInfo> tableInfoList,
+                         GenerateOptions generateOptions, Map<String, Object> otherParam) {
         if (CollectionUtil.isEmpty(templates) || CollectionUtil.isEmpty(tableInfoList)) {
             return;
         }
@@ -154,6 +170,8 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
                 Callback callback = new Callback();
                 callback.setWriteFile(true);
                 callback.setReformat(generateOptions.getReFormat());
+                callback.setExportExcelWithTemplate(ExcelExportType.TEMPLATE.equals(generateOptions.getExcelExportType()));
+                callback.setTruncateComment(generateOptions.getTruncateComment());
                 // 默认名称
                 callback.setFileName(tableInfo.getName() + "Default.java");
                 // 默认路径
@@ -172,6 +190,8 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
                 callback.setSavePath(path);
                 new SaveFile(project, code, callback, generateOptions).write();
             }
+            // 生成Excel模板
+            genExcelTemplate(project, tableInfo, generateOptions);
         }
     }
 
@@ -225,6 +245,9 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         Map<String, Object> param = new HashMap<>(20);
         // 作者
         param.put("author", settings.getAuthor());
+        param.put("year", LocalDate.now().getYear());
+        param.put("date", LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd")));
+        param.put("version", settings.getFileVersion());
         //工具类
         param.put("tool", GlobalTool.getInstance());
         param.put("time", TimeUtils.getInstance());
@@ -252,5 +275,60 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
             }
         });
         return result;
+    }
+
+    private void genExcelTemplate(Project project, TableInfo table, GenerateOptions generateOptions) {
+        if (!ExcelExportType.TEMPLATE.equals(generateOptions.getExcelExportType())) {
+            return;
+        }
+        Module module = null;
+        if (!StringUtils.isEmpty(table.getSaveModelName())) {
+            module = this.moduleManager.findModuleByName(table.getSaveModelName());
+        }
+        VirtualFile moduleDir = null;
+        if (module != null) {
+            // 设置modulePath
+            moduleDir = ModuleUtils.getModuleDir(module);
+        }
+        
+        // 无法获取到模块基本目录，可能是Default项目，直接返回非项目文件
+        if (moduleDir == null) {
+            LOG.error("无法获取到模块基本目录，请检查模块目录选择是否正确！");
+            return;
+        }
+        //生成Excel模板文件
+        // 资源路径
+        String resourcePath = "/src/main/resources/static/template/excel";
+        String excelFileName = table.getComment() + "导出模板.xlsx";
+        VirtualFile saveDir = fileUtils.createChildDirectory(project, moduleDir, resourcePath);
+        VirtualFile psiFile = saveDir.findChild(excelFileName);
+        if (Objects.isNull(psiFile)) {
+            psiFile = fileUtils.createChildFile(project, saveDir, excelFileName);
+        }
+        List<List<String>> head = new ArrayList<>();
+        List<List<Object>> list = ListUtils.newArrayList();
+        head.add(Collections.singletonList("序号"));
+        List<Object> data = ListUtils.newArrayList();
+        data.add("{data1.idx}");
+        for (ColumnInfo column : table.getFullColumn()) {
+            String comment = column.getComment();
+            if (Boolean.TRUE.equals(generateOptions.getTruncateComment())) {
+                comment = StringUtils.getFirstFragment(column.getComment());
+            }
+            head.add(Collections.singletonList(comment));
+            data.add("{data1." + column.getName() + "}");
+        }
+
+        list.add(data);
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            EasyExcelFactory.write(baos)
+                    .head(head)
+                    .excelType(ExcelTypeEnum.XLSX)
+                    .sheet("Sheet1")
+                    .doWrite(list);
+            fileUtils.writeFileContent(project, psiFile, excelFileName, baos.toByteArray());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

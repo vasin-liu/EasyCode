@@ -8,5 +8,10 @@
     "title": "support",
     "type": "SELECT",
     "selectValue": "add,edit,query,del,ui"
+  },
+  {
+    "title": "dictType",
+    "type": "TEXT",
+    "selectValue": ""
   }
 ]

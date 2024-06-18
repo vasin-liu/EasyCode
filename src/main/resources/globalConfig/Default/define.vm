@@ -22,8 +22,30 @@
  * $!{tableInfo.comment}($!{tableInfo.name})$desc
  *
  * @author $!author
- * @since $!time.currTime()
+ * @version $!version
+ * @since $!date , Version $!version
  */
+#end
+
+##初始化列状态
+#macro(initColumnState)
+    #set($hasStatusColumn = false)
+    #set($hasBigDecimalColumn = false)
+    #set($hasDateColumn = false)
+#foreach($column in $tableInfo.fullColumn)
+    #if($!tool.toLowerCase($!column.name) == "status")
+        #set($hasStatusColumn = true)
+    #end
+    #if($!column.shortType == "BigDecimal")
+        #set($hasBigDecimalColumn = true)
+    #end
+    #if($!column.shortType == "Date")
+        #set($hasDateColumn = true)
+    #end
+    #if($!column.ext.get("dictType"))
+        #set($hasDictColumn = true)
+    #end
+#end
 #end
 
 ##定义GET，SET方法的宏定义，调用方式：#getSetMethod($column)

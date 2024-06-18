@@ -1,7 +1,6 @@
 package com.sjhy.plugin.tool;
 
 import com.intellij.codeInsight.actions.AbstractLayoutCodeProcessor;
-import com.intellij.codeInsight.actions.OptimizeImportsProcessor;
 import com.intellij.codeInsight.actions.ReformatCodeProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
@@ -17,7 +16,7 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.ExceptionUtil;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -66,7 +65,7 @@ public class FileUtils {
             try {
                 return VfsUtil.createDirectoryIfMissing(parent, dirName);
             } catch (IOException e) {
-                Messages.showWarningDialog("目录创建失败：" + dirName, GlobalDict.TITLE_INFO);
+                Messages.showWarningDialog("目录创建失败：" + dirName, Const.TITLE_INFO);
                 return null;
             }
         });
@@ -91,7 +90,7 @@ public class FileUtils {
                 }
                 return parent.createChildData(new Object(), fileName);
             } catch (IOException e) {
-                Messages.showWarningDialog("文件创建失败：" + fileName, GlobalDict.TITLE_INFO);
+                Messages.showWarningDialog("文件创建失败：" + fileName, Const.TITLE_INFO);
                 return null;
             }
         });
@@ -123,6 +122,34 @@ public class FileUtils {
         // 提交改动，并非VCS中的提交文件
         psiDocumentManager.commitDocument(document);
         return document;
+    }
+
+    /**
+     * 设置文件内容
+     *
+     * @param project 项目对象
+     * @param file    文件
+     * @param content    文件内容
+     * @return 覆盖后的文档对象
+     */
+    public Document writeFileContent(Project project, VirtualFile file, String fileName, byte[] content) {
+        FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
+        Document document = fileDocumentManager.getDocument(file);
+        WriteCommandAction.runWriteCommandAction(project, () -> {
+            try {
+                file.setBinaryContent(content);
+            } catch (IOException e) {
+                throw new IllegalStateException("二进制文件写入失败，fileName：" + fileName);
+            }
+        });
+        if (document == null) {
+            return fileDocumentManager.getDocument(file);
+        } else {
+            PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(project);
+            // 提交改动，并非VCS中的提交文件
+            psiDocumentManager.commitDocument(document);
+            return document;
+        }
     }
 
     /**
@@ -164,7 +191,8 @@ public class FileUtils {
             processor = constructor.newInstance(processor);
         } catch (ClassNotFoundException ignored) {
             // 类不存在直接忽略
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException |
+                 InvocationTargetException e) {
             // 抛出未知异常
             ExceptionUtil.rethrow(e);
         }

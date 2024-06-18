@@ -5,14 +5,13 @@ import com.intellij.database.psi.DbElement;
 import com.intellij.database.psi.DbTable;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiClass;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.tool.ReflectionUtils;
 import lombok.Data;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -21,7 +20,7 @@ import java.util.TreeMap;
  *
  * @author makejava
  * @version 1.0.0
- * @date 2021/08/14 17:40
+ * @since 2021/08/14 17:40
  */
 @Data
 public class TableInfoSettingsDTO {
@@ -62,6 +61,7 @@ public class TableInfoSettingsDTO {
     private String generateKey(PsiClass psiClass) {
         return psiClass.getQualifiedName();
     }
+
     /**
      * 读表信息
      *
@@ -109,7 +109,7 @@ public class TableInfoSettingsDTO {
         } else if (tableInfo.getPsiClassObj() != null) {
             key = generateKey((PsiClass) tableInfo.getPsiClassObj());
         } else {
-            Messages.showInfoMessage(tableInfo.getName() + "表配置信息保存失败", GlobalDict.TITLE_INFO);
+            Messages.showInfoMessage(tableInfo.getName() + "表配置信息保存失败" , Const.TITLE_INFO);
             return;
         }
         this.tableInfoMap.put(key, TableInfoDTO.valueOf(tableInfo));

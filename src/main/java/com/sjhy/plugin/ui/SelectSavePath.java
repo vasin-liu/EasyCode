@@ -9,8 +9,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ExceptionUtil;
-import com.sjhy.plugin.constants.StrState;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.dto.GenerateOptions;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.TableInfo;
@@ -92,6 +91,10 @@ public class SelectSavePath extends DialogWrapper {
      */
     private JCheckBox titleRefuseCheckBox;
     /**
+     * 截断注释复选框
+     */
+    private JCheckBox truncateCommentCheckBox;
+    /**
      * 数据缓存工具类
      */
     private CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
@@ -157,7 +160,7 @@ public class SelectSavePath extends DialogWrapper {
         this.refreshData();
         this.initEvent();
         init();
-        setTitle(GlobalDict.TITLE_INFO);
+        setTitle(Const.TITLE_INFO);
         //初始化路径
         refreshPath();
     }
@@ -253,7 +256,7 @@ public class SelectSavePath extends DialogWrapper {
         String savePath = tableInfo.getSavePath();
         if (!StringUtils.isEmpty(savePath)) {
             // 判断是否需要拼接项目路径
-            if (savePath.startsWith(StrState.RELATIVE_PATH)) {
+            if (savePath.startsWith(Const.RELATIVE_PATH)) {
                 String projectPath = project.getBasePath();
                 savePath = projectPath + savePath.substring(1);
             }
@@ -274,12 +277,12 @@ public class SelectSavePath extends DialogWrapper {
         List<Template> selectTemplateList = templateSelectComponent.getAllSelectedTemplate();
         // 如果选择的模板是空的
         if (selectTemplateList.isEmpty()) {
-            Messages.showWarningDialog("Can't Select Template!", GlobalDict.TITLE_INFO);
+            Messages.showWarningDialog("Can't Select Template!", Const.TITLE_INFO);
             return;
         }
         String savePath = pathField.getText();
         if (StringUtils.isEmpty(savePath)) {
-            Messages.showWarningDialog("Can't Select Save Path!", GlobalDict.TITLE_INFO);
+            Messages.showWarningDialog("Can't Select Save Path!", Const.TITLE_INFO);
             return;
         }
         // 针对Linux系统路径做处理
@@ -305,7 +308,7 @@ public class SelectSavePath extends DialogWrapper {
         tableInfo.setSavePath(savePath);
         tableInfo.setSavePackageName(packageField.getText());
         tableInfo.setPreName(preField.getText());
-        tableInfo.setTemplateGroupName(templateSelectComponent.getselectedGroupName());
+        tableInfo.setTemplateGroupName(templateSelectComponent.getSelectedGroupName());
         Module module = getSelectModule();
         if (module != null) {
             tableInfo.setSaveModelName(module.getName());
@@ -343,6 +346,8 @@ public class SelectSavePath extends DialogWrapper {
                 .titleSure(titleSureCheckBox.isSelected())
                 .titleRefuse(titleRefuseCheckBox.isSelected())
                 .unifiedConfig(unifiedConfigCheckBox.isSelected())
+                .excelExportType(templateSelectComponent.getExportType())
+                .truncateComment(truncateCommentCheckBox.isSelected())
                 .build();
     }
 
@@ -368,7 +373,7 @@ public class SelectSavePath extends DialogWrapper {
         Module module = getSelectModule();
         VirtualFile baseVirtualFile = ProjectUtils.getBaseDir(project);
         if (baseVirtualFile == null) {
-            Messages.showWarningDialog("无法获取到项目基本路径！", GlobalDict.TITLE_INFO);
+            Messages.showWarningDialog("无法获取到项目基本路径！", Const.TITLE_INFO);
             return "";
         }
         String baseDir = baseVirtualFile.getPath();

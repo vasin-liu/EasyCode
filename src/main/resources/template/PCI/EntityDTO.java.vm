@@ -1,0 +1,96 @@
+/*
+ * Copyright © ${year} PCI Technology Group Co.,Ltd. All Rights Reserved.
+ * Site: http://www.pcitech.com/
+ * Address：PCI Intelligent Building, No.2 Xincen Fourth Road, Tianhe District, Guangzhou，China（Zip code：510653）
+ */
+##导入宏定义
+$!{define.vm}
+
+$!{init.vm}
+
+##设置表后缀（宏定义）
+#setTableSuffix("DTO")
+
+##保存文件（宏定义）
+#save("/model/dto", "DTO.java")
+
+##包路径（宏定义）
+#setPackageSuffix("model.dto")
+
+##定义包路径
+#set($package = $!{tableInfo.savePackageName})
+
+##定义类名
+#set($className = $!{tableInfo.name})
+
+##初始化列状态
+#initColumnState()
+
+##自动导入包（全局变量）
+$!autoImport
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import com.alibaba.excel.metadata.data.FormulaData;
+import com.alibaba.excel.metadata.data.WriteCellData;
+import com.suntek.common.core.base.BaseDTO;
+#if(${hasBigDecimalColumn})
+import java.math.BigDecimal;
+#end
+#if(${hasDateColumn})
+import cn.hutool.core.date.DatePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
+#end
+#if(${hasDictColumn})
+import com.suntek.common.core.annotation.DictParam;
+#end
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Date;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+##表注释（宏定义）
+#tableComment("数据传输类")
+@Data
+@ApiModel(description = "${tableInfo.comment}" )
+@EqualsAndHashCode(callSuper = true)
+public class ${className}DTO extends BaseDTO {
+    private static final long serialVersionUID = 1L;
+
+    #foreach ($column in $tableInfo.fullColumn)
+    /**
+     * $!{column.comment}
+     */
+    #if($!{column.shortType} == "Date")
+    @JsonFormat(pattern = DatePattern.NORM_DATETIME_PATTERN, timezone = "Asia/Shanghai" )
+    #end
+    #if($!{column.ext.get("dictType")})
+    @DictParam(dictType = "$!{column.ext.get("dictType")}", dictNameFiled = "$!{column.name}View")
+    #end
+    @ApiModelProperty(value = "$!{tool.escapeDoubleQuotes($!{column.comment})}" )
+    private $!{column.shortType} $!{column.name};
+
+    #if($!{column.ext.get("dictType")})
+    /**
+     * $!{column.comment}字典说明
+     */
+    @ApiModelProperty(value = "$!{tool.escapeDoubleQuotes($!{column.comment})}字典说明" )
+    private String $!{column.name}View;
+
+    #end
+    #end
+
+    /**
+     * excel row
+     */
+    @ApiModelProperty(value = "导出使用" , hidden = true)
+    @JsonIgnore
+    private transient WriteCellData<String> idx;
+
+    public ${className}DTO() {
+        WriteCellData<String> formula = new WriteCellData<>();
+        FormulaData formulaData = new FormulaData();
+        formulaData.setFormulaValue("ROW()-1" );
+        formula.setFormulaData(formulaData);
+        idx = formula;
+    }
+}

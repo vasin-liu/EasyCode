@@ -1,0 +1,77 @@
+/*
+ * Copyright © ${year} PCI Technology Group Co.,Ltd. All Rights Reserved.
+ * Site: http://www.pcitech.com/
+ * Address：PCI Intelligent Building, No.2 Xincen Fourth Road, Tianhe District, Guangzhou，China（Zip code：510653）
+ */
+##导入宏定义
+$!{define.vm}
+
+$!{init.vm}
+
+##设置表后缀（宏定义）
+#setTableSuffix("PO")
+
+##保存文件（宏定义）
+#save("/model/po", "PO.java")
+
+##包路径（宏定义）
+#setPackageSuffix("model.po")
+
+##定义包路径
+#set($package = $!{tableInfo.savePackageName})
+
+##定义类名
+#set($className = $!{tableInfo.name})
+
+##初始化列状态
+#initColumnState()
+
+##自动导入包（全局变量）
+$!autoImport
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import com.suntek.common.dao.base.BasePO;
+#if(${hasBigDecimalColumn})
+import java.math.BigDecimal;
+#end
+#if(${hasDateColumn})
+import cn.hutool.core.date.DatePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
+#end
+import java.util.Date;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.NoArgsConstructor;
+
+##表注释（宏定义）
+#tableComment("实体类")
+@Data
+@NoArgsConstructor
+@TableName("${tableInfo.obj.name}")
+@ApiModel(description = "${tableInfo.comment}")
+@EqualsAndHashCode(callSuper = true)
+public class ${className}PO extends BasePO {
+
+    private static final long serialVersionUID = 1L;
+
+    #foreach ($column in $tableInfo.fullColumn)
+    /**
+     * $!{column.comment}
+     */
+    #if($pk.name == $column.name)
+    @TableId
+    #else
+    @TableField("$column.obj.name")
+    #end
+    #if($!{column.shortType} == "Date")
+    @JsonFormat(pattern = DatePattern.NORM_DATETIME_PATTERN, timezone = "Asia/Shanghai")
+    #end
+    @ApiModelProperty(value = "$!{tool.escapeDoubleQuotes($!{column.comment})}")
+    private $!{column.shortType} $!{column.name};
+
+    #end
+
+}

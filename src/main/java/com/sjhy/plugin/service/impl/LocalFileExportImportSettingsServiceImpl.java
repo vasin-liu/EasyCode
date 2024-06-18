@@ -16,7 +16,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.util.ExceptionUtil;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.ExportImportSettingsService;
 import com.sjhy.plugin.tool.JSON;
@@ -62,7 +62,7 @@ public class LocalFileExportImportSettingsServiceImpl implements ExportImportSet
 
                 // 发起通知
                 Notification notification = new Notification(
-                        Notifications.SYSTEM_MESSAGES_GROUP_ID,
+                        Const.MESSAGES_GROUP_ID,
                         "Easy code notify",
                         "Easy code config file export to",
                         NotificationType.INFORMATION);
@@ -91,7 +91,7 @@ public class LocalFileExportImportSettingsServiceImpl implements ExportImportSet
     public SettingsStorageDTO importConfig() {
         VirtualFile virtualFile = FileChooser.chooseFile(FileChooserDescriptorFactory.createSingleFileDescriptor("json"), ProjectUtils.getCurrProject(), null);
         if (virtualFile == null) {
-            Messages.showWarningDialog("config file not found！", GlobalDict.TITLE_INFO);
+            Messages.showWarningDialog("config file not found！", Const.TITLE_INFO);
             return null;
         }
         String json = LoadTextUtil.loadText(virtualFile).toString();

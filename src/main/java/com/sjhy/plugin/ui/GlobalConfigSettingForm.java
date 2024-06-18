@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.ide.fileTemplates.impl.UrlUtil;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.util.ExceptionUtil;
-import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.GlobalConfig;
 import com.sjhy.plugin.entity.GlobalConfigGroup;
@@ -19,12 +19,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
  * @author makejava
  * @version 1.0.0
- * @date 2021/08/10 16:14
+ * @since 2021/08/10 16:14
  */
 public class GlobalConfigSettingForm implements Configurable, BaseSettings {
     /**
@@ -35,7 +36,7 @@ public class GlobalConfigSettingForm implements Configurable, BaseSettings {
     static {
         String descriptionInfo = "";
         try {
-            descriptionInfo = UrlUtil.loadText(GlobalConfigSettingForm.class.getResource("/description/globalConfigDescription.html"));
+            descriptionInfo = UrlUtil.loadText(Objects.requireNonNull(GlobalConfigSettingForm.class.getResource("/description/globalConfigDescription.html")));
         } catch (IOException e) {
             ExceptionUtil.rethrow(e);
         } finally {
@@ -43,7 +44,7 @@ public class GlobalConfigSettingForm implements Configurable, BaseSettings {
         }
     }
 
-    private JPanel mainPanel;
+    private final JPanel mainPanel;
     /**
      * 类型映射配置
      */
@@ -91,7 +92,7 @@ public class GlobalConfigSettingForm implements Configurable, BaseSettings {
             }
             editorComponent.setFile(globalConfig);
         };
-        this.editListComponent = new EditListComponent<>(switchItemFun, "GlobalConfig Name:", GlobalConfig.class, this.currGlobalConfigGroup.getElementList());
+        this.editListComponent = new EditListComponent<>(switchItemFun, "GlobalConfig Name:" , GlobalConfig.class, this.currGlobalConfigGroup.getElementList());
     }
 
     private void initEditor() {
@@ -125,11 +126,11 @@ public class GlobalConfigSettingForm implements Configurable, BaseSettings {
     @Override
     public void loadSettingsStore(SettingsStorageDTO settingsStorage) {
         // 复制配置，防止篡改
-        this.globalConfigGroupMap = CloneUtils.cloneByJson(settingsStorage.getGlobalConfigGroupMap(), new TypeReference<Map<String, GlobalConfigGroup>>() {
+        this.globalConfigGroupMap = CloneUtils.cloneByJson(settingsStorage.getGlobalConfigGroupMap(), new TypeReference<>() {
         });
         this.currGlobalConfigGroup = this.globalConfigGroupMap.get(settingsStorage.getCurrGlobalConfigGroupName());
         if (this.currGlobalConfigGroup == null) {
-            this.currGlobalConfigGroup = this.globalConfigGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
+            this.currGlobalConfigGroup = this.globalConfigGroupMap.get(Const.DEFAULT_GROUP_NAME);
         }
         // 解决reset后编辑框未清空BUG
         if (this.editorComponent != null) {

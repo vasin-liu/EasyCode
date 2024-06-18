@@ -1,0 +1,109 @@
+/*
+ * Copyright © ${year} PCI Technology Group Co.,Ltd. All Rights Reserved.
+ * Site: http://www.pcitech.com/
+ * Address：PCI Intelligent Building, No.2 Xincen Fourth Road, Tianhe District, Guangzhou，China（Zip code：510653）
+ */
+##导入宏定义
+$!{define.vm}
+
+##设置表后缀（宏定义）
+#setTableSuffix("Service")
+
+##保存文件（宏定义）
+#save("/service", "Service.java")
+
+##包路径（宏定义）
+#setPackageSuffix("service")
+
+##定义包路径
+#set($package = $!{tableInfo.savePackageName})
+
+##定义类名
+#set($className = $!{tableInfo.name})
+
+##定义注释内容
+#set($comments = $!{tableInfo.comment})
+
+##初始化列状态
+#initColumnState()
+
+##定义实体对象名
+#set($entityName = $!tool.firstLowerCase($!tableInfo.name))
+
+$!autoImport
+import com.baomidou.mybatisplus.extension.service.IService;
+import ${package}.model.po.${className}PO;
+import ${package}.model.dto.${className}DTO;
+import ${package}.model.vo.${className}PageVO;
+import ${package}.model.vo.${className}VO;
+import com.suntek.common.dao.base.PageDTO;
+#if(!$callback.exportExcelWithTemplate)
+import java.io.File;
+#end
+import java.util.Collection;
+
+##表注释（宏定义）
+#tableComment("服务定义层")
+public interface ${className}Service extends IService<${className}PO> {
+
+    /**
+     * 分页查询${comments}
+     *
+     * @param vo 分页对象
+     * @return PageDTO<${className}DTO>
+     */
+    PageDTO<${className}DTO> listPage(${className}PageVO vo);
+
+#if(!$tableInfo.pkColumn.isEmpty())
+    #set($pk = $!{tableInfo.pkColumn.get(0)})
+    /**
+     * 根据主键编号获取${comments}
+     *
+     * @param ${pk.name} 主键编号
+     */
+    ${className}DTO detail($!{pk.shortType} ${pk.name});
+#end
+
+    /**
+     * 新增${comments}
+     *
+     * @param vo 新增对象
+     * @return PageDTO<${className}DTO>
+     */
+    boolean add(${className}VO vo);
+
+    /**
+     * 批量新增${comments}
+     *
+     * @param voList 新增对象列表
+     * @return PageDTO<${className}DTO>
+     */
+    boolean addBatch(Collection<${className}VO> voList);
+#if(!$callback.exportExcelWithTemplate)
+    /**
+     * 导出${comments}
+     *
+     * @param pageDTO 分页对象
+     */
+    File export(PageDTO<${className}DTO> pageDTO);
+#end
+
+#if(!$tableInfo.pkColumn.isEmpty())
+    #set($pk = $!{tableInfo.pkColumn.get(0)})
+    #if($hasStatusColumn)
+    /**
+     * 根据主键编号逻辑删除${comments}
+     *
+     * @param $!{pk.name} 主键编号
+     */
+    boolean logicalRemoveById($!{pk.shortType} $!{pk.name});
+
+    /**
+     * 根据主键编号集合批量逻辑删除${comments}
+     *
+     * @param idList 主键编号集合
+     */
+    boolean logicalRemoveByIds(Collection<$!{pk.shortType}> idList);
+    #end
+#end
+}

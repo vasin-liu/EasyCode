@@ -2,9 +2,9 @@ package com.sjhy.plugin.service.impl;
 
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.sjhy.plugin.constant.Const;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.SettingsStorageService;
-import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,9 +13,9 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author makejava
  * @version 1.0.0
- * @date 2021/08/07 11:32
+ * @since 2021/08/07 11:32
  */
-@State(name = "EasyCodeSetting", storages = @Storage("easy-code-setting.xml"))
+@State(name = "EasyCodeSetting", storages = @Storage(Const.PLUGIN_SETTING_FILE_NAME))
 public class SettingsStorageServiceImpl implements SettingsStorageService {
 
     private SettingsStorageDTO settingsStorage = SettingsStorageDTO.defaultVal();
