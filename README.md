@@ -5,7 +5,7 @@
 > EasyCode是基于IntelliJ IDEA Ultimate版开发的一个代码生成插件，主要通过自定义模板（基于velocity）来生成各种你想要的代码。通常用于生成Entity、Dao、Service、Controller。如果你动手能力强还可以用于生成HTML、JS、PHP等代码。理论上来说只要是与数据有关的代码都是可以生成的。
 ---
 ### 使用环境
-`IntelliJ IDEA Ultimate版（172+）`
+`IntelliJ IDEA Ultimate版（232+）`
 
 ### 支持的数据库类型
 ##### 因为是基于Database Tool开发，所有Database Tool支持的数据库都是支持的。
@@ -25,6 +25,15 @@
 > 当然支持的数据库类型也会随着Database Tool插件的更新同步更新。
 
 ### 功能说明：
+1. 新增PCI模板分组（兼容以前的代码生成工具的模板，基于Velocity模板）；
+2. 增加注释截断配置项，某些情况下希望根据实际情况截断注释内容，提取简短的字段描述；
+3. 增加生成Excel模板功能（仅限PCI模板分组），支持两种模式：（1）普通模式，直接生成Excel文件；（2）模板模式，通过模板文件导出；
+4. 增加字典列配置功能（仅限单表生成配置）；
+5. 支持多表配置和多表清除功能；
+6. 优化模板中数据类型判断功能；
+7. 支持更多的数据库类型=>Java类型的映射；
+8. 增加更多的可配置变量和工具方法；
+------------------------------------------------- 
 * 支持多表同时操作
 * 支持同时生成多个模板
 * 支持自定义模板
@@ -51,18 +60,9 @@
 
 
 ### 使用文档：
-[点击查看WIKI文档](https://gitee.com/makejava/EasyCode/wikis/pages)
+[点击查看WIKI文档](http://wiki.pcitech.com/books/9872e-hrK/page/idea)
 
-### 一、在线安装
-> ##### 动图教程：
-> ![在线安装](../../raw/master/%E6%95%99%E7%A8%8B%E5%9B%BE%E7%89%87/1-1/%E5%9C%A8%E7%BA%BF%E5%AE%89%E8%A3%85.gif "在线安装")
-> ##### 说明文档：
-> ``` 说明文档：
-> 1. 安装完毕后重启生效。
-> 2. 版本更新时不会覆盖现有模板。
-> ```
-
-### 二、手动安装
+### 一、手动安装
 > [ **点击这里** ](../../releases)，下载最新的发行版本。
 > ##### 动图教程
 ![手动安装](../../raw/master/%E6%95%99%E7%A8%8B%E5%9B%BE%E7%89%87/1-1/%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%85.gif "手动安装")
@@ -71,8 +71,4 @@
 > 1. 安装完毕后重启生效。
 > 2. 版本更新时不会覆盖现有模板。
 > 3. 不要解压zip包，安装时直接选zip包即可。
-> ```  
-
-#### QQ群1：[373603580](https://shang.qq.com/wpa/qunwpa?idkey=4d495321e527ec2ce459c0d0d6320414cd9677d92d5287df831d4e1c4ec09740)
-#### QQ群2：[167490920](https://qm.qq.com/cgi-bin/qm/qr?k=r0emWZbPZIb6BqxpLM4Z4jo2mHoC0zZK&jump_from=webapi)
-#### Telegram：[https://t.me/gotoeasycode](https://t.me/gotoeasycode)
+> ```
